@@ -1,0 +1,15 @@
+{
+	"Listen": ":8443",
+	"SSLEnable": true,
+	"SessionExpire": 172800000,
+	"DirPaths": {
+		"WebRoot": "../web",
+		"GitRoot": "../repos"
+	},
+	"FilePaths": {
+		"DBFile": "../db/summa.sqlite",
+		"LogFile": "../logs/summa.log",
+		"SSLCertFile": "../ssl/server.crt",
+		"SSLKeyFile": "../ssl/server.key"
+	}
+}
