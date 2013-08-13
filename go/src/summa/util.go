@@ -3,6 +3,7 @@ package summa
 import (
 	"os"
 	"path/filepath"
+	"strconv"
 	"syscall"
 )
 
@@ -56,6 +57,12 @@ func UnixMilliseconds() int64 {
 	return (int64(tv.Sec)*1e3 + int64(tv.Usec)/1e3)
 }
 
-// Get the base 36 representation of the current time in milliseconds
-// ms := unixMilli()
-// infoLog.Printf("%s", strconv.FormatInt(ms, 36))
+// FromBase36 convers a base36 string to an integer
+func FromBase36(s string) (int64, error) {
+	return strconv.ParseInt(s, 36, 64)
+}
+
+// ToBase36 converts an integer into a base 36 string
+func ToBase36(i int64) string {
+	return strconv.FormatInt(i, 36)
+}
