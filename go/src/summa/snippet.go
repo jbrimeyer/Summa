@@ -5,7 +5,7 @@ import (
 	_ "go-sqlite3"
 )
 
-type SnippetComment struct {
+type snippetComment struct {
 	ID          int64  `json:"id"`
 	SnippetID   int64  `json:"-"`
 	Username    string `json:"username"`
@@ -15,35 +15,36 @@ type SnippetComment struct {
 	Updated     int64  `json:"updated"`
 }
 
-type SnippetFile struct {
+type snippetFile struct {
 	SnippetID int64  `json:"-"`
 	Filename  string `json:"filename"`
 	Language  string `json:"language"`
 	Contents  string `json:"contents,omitempty"`
 }
 
-type SnippetComments []SnippetComment
-type SnippetFiles []SnippetFile
+type snippetComments []snippetComment
+type snippetFiles []snippetFile
 
-type Snippet struct {
-	ID          int64            `json:"id"`
+type snippet struct {
+	ID          int64            `json:"-"`
+	ID36        string           `json:"id"`
 	Username    string           `json:"username"`
 	DisplayName string           `json:"display_name"`
 	Description string           `json:"description"`
 	Created     int64            `json:"created"`
 	Updated     int64            `json:"updated"`
-	Files       *SnippetFiles    `json:"files,omitempty"`
-	Comments    *SnippetComments `json:"comments,omitempty"`
+	Files       *snippetFiles    `json:"files,omitempty"`
+	Comments    *snippetComments `json:"comments,omitempty"`
 	Revisions   []string         `json:"revisions,omitempty"`
 }
 
-type Snippets []Snippet
+type snippets []snippet
 
-func SnippetsUnread(db *sql.DB, username string) (*Snippets, error) {
-	var snippets Snippets
+func snippetsUnread(db *sql.DB, username string) (*snippets, error) {
+	var snips snippets
 
 	rows, err := db.Query(
-		"SELECT snippet_id,username,display_name,description,created,updated "+
+		"SELECT id_base36,username,display_name,description,created,updated "+
 			"FROM snippet JOIN user USING (username) WHERE snippet_id NOT IN "+
 			"(SELECT snippet_id FROM snippet_view WHERE username=?)",
 		username,
@@ -53,43 +54,43 @@ func SnippetsUnread(db *sql.DB, username string) (*Snippets, error) {
 	}
 
 	for rows.Next() {
-		var snippet Snippet
+		var snip snippet
 
 		rows.Scan(
-			&snippet.ID,
-			&snippet.Username,
-			&snippet.DisplayName,
-			&snippet.Description,
-			&snippet.Created,
-			&snippet.Updated,
+			&snip.ID36,
+			&snip.Username,
+			&snip.DisplayName,
+			&snip.Description,
+			&snip.Created,
+			&snip.Updated,
 		)
 
-		snippets = append(snippets, snippet)
+		snips = append(snips, snip)
 	}
 
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return &snippets, nil
+	return &snips, nil
 }
 
-func SnippetFetch(db *sql.DB, id int64) (*Snippet, error) {
-	var snippet Snippet
+func snippetFetch(db *sql.DB, id int64) (*snippet, error) {
+	var snip snippet
 
 	row := db.QueryRow(
-		"SELECT snippet_id,username,display_name,description,created,updated "+
+		"SELECT id_base36,username,display_name,description,created,updated "+
 			"FROM snippet JOIN user USING (username) WHERE snippet_id=?",
 		id,
 	)
 
 	err := row.Scan(
-		&snippet.ID,
-		&snippet.Username,
-		&snippet.DisplayName,
-		&snippet.Description,
-		&snippet.Created,
-		&snippet.Updated,
+		&snip.ID36,
+		&snip.Username,
+		&snip.DisplayName,
+		&snip.Description,
+		&snip.Created,
+		&snip.Updated,
 	)
 
 	switch {
@@ -99,24 +100,24 @@ func SnippetFetch(db *sql.DB, id int64) (*Snippet, error) {
 		return nil, err
 	}
 
-	snippet.Files, err = SnippetFetchFiles(db, id)
+	snip.Files, err = snippetFetchFiles(db, id)
 	if err != nil {
 		return nil, err
 	}
 
-	snippet.Comments, err = SnippetFetchComments(db, id)
+	snip.Comments, err = snippetFetchComments(db, id)
 	if err != nil {
 		return nil, err
 	}
 
-	return &snippet, nil
+	return &snip, nil
 }
 
-func SnippetFetchComments(db *sql.DB, id int64) (*SnippetComments, error) {
-	var comments SnippetComments
+func snippetFetchComments(db *sql.DB, id int64) (*snippetComments, error) {
+	var comments snippetComments
 
 	rows, err := db.Query(
-		"SELECT comment_id,snippet_id,username,display_name,message,created,updated FROM "+
+		"SELECT comment_id,username,display_name,message,created,updated FROM "+
 			"snippet_comment JOIN user USING (username) WHERE snippet_id=? ORDER BY created",
 		id,
 	)
@@ -125,11 +126,10 @@ func SnippetFetchComments(db *sql.DB, id int64) (*SnippetComments, error) {
 	}
 
 	for rows.Next() {
-		var comment SnippetComment
+		var comment snippetComment
 
 		rows.Scan(
 			&comment.ID,
-			&comment.SnippetID,
 			&comment.Username,
 			&comment.DisplayName,
 			&comment.Message,
@@ -147,11 +147,11 @@ func SnippetFetchComments(db *sql.DB, id int64) (*SnippetComments, error) {
 	return &comments, nil
 }
 
-func SnippetFetchFiles(db *sql.DB, id int64) (*SnippetFiles, error) {
-	var files SnippetFiles
+func snippetFetchFiles(db *sql.DB, id int64) (*snippetFiles, error) {
+	var files snippetFiles
 
 	rows, err := db.Query(
-		"SELECT snippet_id,filename,language FROM "+
+		"SELECT filename,language FROM "+
 			"snippet_file WHERE snippet_id=? ORDER BY filename",
 		id,
 	)
@@ -160,10 +160,9 @@ func SnippetFetchFiles(db *sql.DB, id int64) (*SnippetFiles, error) {
 	}
 
 	for rows.Next() {
-		var file SnippetFile
+		var file snippetFile
 
 		rows.Scan(
-			&file.SnippetID,
 			&file.Filename,
 			&file.Language,
 		)

@@ -3,26 +3,33 @@ package summa
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	_ "go-sqlite3"
 	"io/ioutil"
 	"net/http"
+	"regexp"
+	"strings"
 )
 
+type apiRequestData map[string]interface{}
+
 type apiRequest struct {
-	Username string      `json:"username"`
-	Password string      `json:"password"`
-	Token    string      `json:"token"`
-	Data     interface{} `json:"data"`
+	Username string         `json:"username"`
+	Password string         `json:"password"`
+	Token    string         `json:"token"`
+	Data     apiRequestData `json:"data"`
 }
+
+type apiResponseData map[string]interface{}
 
 type apiResponse struct {
-	Status int                    `json:"-"`
-	Error  string                 `json:"error,omitempty"`
-	Token  string                 `json:"token,omitempty"`
-	Data   map[string]interface{} `json:"data,omitempty"`
+	Status int             `json:"-"`
+	Error  string          `json:"error,omitempty"`
+	Token  string          `json:"token,omitempty"`
+	Data   apiResponseData `json:"data,omitempty"`
 }
 
-type apiHandlerFunc func(db *sql.DB, req interface{}, resp *apiResponse) apiError
+type apiHandlerFunc func(db *sql.DB, req apiRequestData, resp apiResponseData) apiError
 
 type apiHandler struct {
 	handlerFunc   apiHandlerFunc
@@ -77,7 +84,7 @@ func handleApiRequest(w http.ResponseWriter, req *http.Request) {
 	if apiErr != nil {
 		resp.Status = apiErr.Code()
 		resp.Error = apiErr.Error()
-		resp.Data = nil
+		resp.Data = apiErr.Data()
 
 		switch apiErr.(type) {
 		case *internalServerError:
@@ -99,7 +106,7 @@ func handleApiRequest(w http.ResponseWriter, req *http.Request) {
 
 func generateApiResponse(httpReq *http.Request, apiResp *apiResponse) apiError {
 	if httpReq.Method != "POST" {
-		return &badRequestError{"Invalid request method"}
+		return &methodNotAllowedError{}
 	}
 
 	handler, ok := apiEndpoints[httpReq.URL.Path]
@@ -127,12 +134,14 @@ func generateApiResponse(httpReq *http.Request, apiResp *apiResponse) apiError {
 	authenticated := false
 	if handler.isAuthHandler {
 		// TODO: External authentication
+		// TODO: If user is new, add them to the user database table
+		// TODO: If user is new, indicate that in the JSON response so the client can prompt for e-mail address
 
 		if !authenticated {
 			return &unauthorizedError{"Invalid authentication credentials"}
 		}
 
-		token, err := createSession(db, apiReq.Username)
+		token, err := sessionCreate(db, apiReq.Username)
 		if err != nil {
 			return &internalServerError{"Could not create session", err}
 		}
@@ -140,7 +149,7 @@ func generateApiResponse(httpReq *http.Request, apiResp *apiResponse) apiError {
 
 		return nil
 	} else {
-		authenticated, err = isValidSession(db, apiReq.Username, apiReq.Token)
+		authenticated, err = sessionIsValid(db, apiReq.Username, apiReq.Token)
 		if err != nil {
 			return &internalServerError{"Could not check for valid session", err}
 		}
@@ -149,29 +158,50 @@ func generateApiResponse(httpReq *http.Request, apiResp *apiResponse) apiError {
 			return &unauthorizedError{"Invalid or expired authentication session"}
 		}
 
-		apiErr := handler.handlerFunc(db, apiReq.Data, apiResp)
+		if apiReq.Data == nil {
+			apiReq.Data = make(map[string]interface{})
+		}
+
+		apiReq.Data["_username"] = apiReq.Username
+		apiReq.Data["_token"] = apiReq.Token
+		apiResp.Data = make(map[string]interface{})
+		apiErr := handler.handlerFunc(db, apiReq.Data, apiResp.Data)
 		return apiErr
 	}
 }
 
-func apiAuthSignin(db *sql.DB, req interface{}, resp *apiResponse) apiError {
+func apiAuthSignout(db *sql.DB, req apiRequestData, resp apiResponseData) apiError {
+	err := sessionRemove(db, req["_username"].(string), req["_token"].(string))
+	if err != nil {
+		return &internalServerError{"Could not remove authentication session", err}
+	}
 	return nil
 }
 
-func apiAuthSignout(db *sql.DB, req interface{}, resp *apiResponse) apiError {
+func apiProfile(db *sql.DB, req apiRequestData, resp apiResponseData) apiError {
+	// TODO: apiProfile()
 	return nil
 }
 
-func apiProfile(db *sql.DB, req interface{}, resp *apiResponse) apiError {
+func apiProfileUpdate(db *sql.DB, req apiRequestData, resp apiResponseData) apiError {
+	// TODO: apiProfileUpdate()
 	return nil
 }
 
-func apiProfileUpdate(db *sql.DB, req interface{}, resp *apiResponse) apiError {
-	return nil
-}
+func apiSnippet(db *sql.DB, req apiRequestData, resp apiResponseData) apiError {
+	var id int64
+	var err error
+	switch req["id"].(type) {
+	case string:
+		id, err = FromBase36(req["id"].(string))
+		if err != nil {
+			return &badRequestError{"Invalid snippet id"}
+		}
+	default:
+		return &badRequestError{"The 'id' field must be a string"}
+	}
 
-func apiSnippet(db *sql.DB, req interface{}, resp *apiResponse) apiError {
-	snippet, err := SnippetFetch(db, 1)
+	snippet, err := snippetFetch(db, id)
 	if err != nil {
 		return &internalServerError{"Could not fetch snippet", err}
 	}
@@ -180,28 +210,90 @@ func apiSnippet(db *sql.DB, req interface{}, resp *apiResponse) apiError {
 		return &notFoundError{"No such snippet"}
 	}
 
-	resp.Data = make(map[string]interface{})
-	resp.Data["snippet"] = snippet
+	resp["snippet"] = snippet
 
 	return nil
 }
 
-func apiSnippetCreate(db *sql.DB, req interface{}, resp *apiResponse) apiError {
+func apiSnippetCreate(db *sql.DB, req apiRequestData, resp apiResponseData) apiError {
+	reqForFiles := []string{"filename", "language", "contents"}
+	var snip snippet
+
+	snip.Description, _ = req["description"].(string)
+	if snip.Description == "" {
+		return &conflictError{apiResponseData{"field": "description"}}
+	}
+
+	fileRegex := regexp.MustCompile("(?i)^[a-z0-9_.-]+$")
+	var files snippetFiles
+
+	switch req["files"].(type) {
+	case []interface{}:
+		for i, v := range req["files"].([]interface{}) {
+			switch v.(type) {
+			case map[string]interface{}:
+				vmap := v.(map[string]interface{})
+				fields := make(map[string]string)
+				var file snippetFile
+
+				for _, required := range reqForFiles {
+					strVal, ok := vmap[required].(string)
+					if !ok || strings.TrimSpace(strVal) == "" {
+						return &conflictError{apiResponseData{"field": fmt.Sprintf("file[%d].%s", i, required)}}
+					}
+					fields[required] = strings.TrimSpace(strVal)
+				}
+
+				if !fileRegex.MatchString(fields["filename"]) {
+					return &conflictError{apiResponseData{"field": fmt.Sprintf("file[%d].filename", i)}}
+				}
+
+				file.Filename = fields["filename"]
+				file.Language = fields["language"]
+				file.Contents = fields["contents"]
+
+				files = append(files, file)
+			default:
+				return &badRequestError{"'files' field is malformed"}
+			}
+		}
+	default:
+		return &conflictError{apiResponseData{"field": "files"}}
+	}
+
+	snip.Files = &files
+
+	// TODO: Start database transaction
+	// TODO: Insert snippet into database
+	// TODO: Create git repository
+	// TODO: Any problems? roll back the transaction and cleanup filesystem
+	// TODO: All ok? return the snippet ID in resp
+
 	return nil
 }
 
-func apiSnippetUpdate(db *sql.DB, req interface{}, resp *apiResponse) apiError {
+func apiSnippetUpdate(db *sql.DB, req apiRequestData, resp apiResponseData) apiError {
+	// TODO: apiSnippetUpdate
 	return nil
 }
 
-func apiSnippetDelete(db *sql.DB, req interface{}, resp *apiResponse) apiError {
+func apiSnippetDelete(db *sql.DB, req apiRequestData, resp apiResponseData) apiError {
+	// TODO: apiSnippetDelete
 	return nil
 }
 
-func apiSearch(db *sql.DB, req interface{}, resp *apiResponse) apiError {
+func apiSearch(db *sql.DB, req apiRequestData, resp apiResponseData) apiError {
+	// TODO: apiSearch()
 	return nil
 }
 
-func apiUnread(db *sql.DB, req interface{}, resp *apiResponse) apiError {
+func apiUnread(db *sql.DB, req apiRequestData, resp apiResponseData) apiError {
+	snippets, err := snippetsUnread(db, req["_username"].(string))
+	if err != nil {
+		return &internalServerError{"Could not fetch snippets", err}
+	}
+
+	resp["snippets"] = snippets
+
 	return nil
 }

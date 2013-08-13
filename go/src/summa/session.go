@@ -11,9 +11,9 @@ import (
 	"time"
 )
 
-// isValidSession checks to determine if a given username and token
+// sessionIsValid checks to determine if a given username and token
 // combine to make a valid session
-func isValidSession(db *sql.DB, username, token string) (bool, error) {
+func sessionIsValid(db *sql.DB, username, token string) (bool, error) {
 	expired := UnixMilliseconds() - config.SessionExpire
 
 	// Remove expired sessions
@@ -40,9 +40,9 @@ func isValidSession(db *sql.DB, username, token string) (bool, error) {
 	return count != 0, nil
 }
 
-// createSession generates a random session token for
+// sessionCreate generates a random session token for
 // a given username and stores it in the database
-func createSession(db *sql.DB, username string) (string, error) {
+func sessionCreate(db *sql.DB, username string) (string, error) {
 	rand.Seed(time.Now().UnixNano())
 	buf := new(bytes.Buffer)
 	binary.Write(buf, binary.LittleEndian, rand.Int63())
@@ -63,9 +63,9 @@ func createSession(db *sql.DB, username string) (string, error) {
 	return token, err
 }
 
-// removeSesion removes a session with a given username
+// sessionRemove removes a session with a given username
 // and token from the database
-func removeSession(db *sql.DB, username, token string) error {
+func sessionRemove(db *sql.DB, username, token string) error {
 	_, err := db.Exec(
 		"DELETE FROM user_session WHERE username=? AND token=?",
 		username,
