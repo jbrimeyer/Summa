@@ -9,18 +9,6 @@ import (
 
 var configFile string
 
-func auth(username, password string) (*summa.User, error) {
-	var u summa.User
-
-	u.Username = "jbrimeyer"
-	u.DisplayName = "Jeremy Brimeyer"
-	u.Email = "jbrimeyer@leepfrog.com"
-
-	// TODO: Return nil if the user is not authorized
-
-	return &u, nil
-}
-
 func init() {
 	flag.StringVar(&configFile, "f", "server.conf", "The server configuration file")
 }
@@ -35,4 +23,14 @@ func main() {
 
 	summa.SetAuthProvider(auth)
 	summa.StartHttp()
+}
+
+func auth(username, password string) (*summa.User, error) {
+	var u summa.User
+
+	u.Username = "anonymous"
+	u.DisplayName = "Anonymous"
+	u.Email = "anon@anonymous.com"
+
+	return &u, nil
 }
