@@ -48,6 +48,7 @@ func repoUpdate(id string, user *summaUser, files snippetFiles) error {
 	return nil
 }
 
+// repoDelete will permanently delete the repository from the filesystem
 func repoDelete(id string) error {
-	return nil
+	return os.RemoveAll(repoPath(id))
 }

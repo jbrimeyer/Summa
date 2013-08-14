@@ -126,7 +126,7 @@ func snippetDelete(db *sql.DB, id string) error {
 	}
 	tx.Commit()
 
-	// TODO: Remove git repository
+	repoDelete(id)
 
 	return nil
 }
