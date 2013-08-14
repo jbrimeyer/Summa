@@ -9,7 +9,7 @@ type snippetComment struct {
 	ID          int64  `json:"id"`
 	SnippetID   string `json:"-"`
 	Username    string `json:"username"`
-	DisplayName string `json:"display_name"`
+	DisplayName string `json:"displayName"`
 	Message     string `json:"message"`
 	Created     int64  `json:"created"`
 	Updated     int64  `json:"updated"`
@@ -28,7 +28,7 @@ type snippetFiles []snippetFile
 type snippet struct {
 	ID          string          `json:"id"`
 	Username    string          `json:"username"`
-	DisplayName string          `json:"display_name"`
+	DisplayName string          `json:"displayName"`
 	Description string          `json:"description"`
 	Created     int64           `json:"created"`
 	Updated     int64           `json:"updated"`

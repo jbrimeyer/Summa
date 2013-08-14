@@ -5,6 +5,11 @@ import (
 	"path/filepath"
 )
 
+// SetAuthProvider sets the function to call to authenticate users
+func SetAuthProvider(ap AuthProvider) {
+	config.SetAuthProvider(ap)
+}
+
 // Init loads the Summa configuration file and performs some base
 // initialization tasks on the config settings
 func Init(configFile string) error {

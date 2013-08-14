@@ -23,10 +23,13 @@ type apiRequest struct {
 type apiResponseData map[string]interface{}
 
 type apiResponse struct {
-	Status int             `json:"-"`
-	Error  string          `json:"error,omitempty"`
-	Token  string          `json:"token,omitempty"`
-	Data   apiResponseData `json:"data,omitempty"`
+	Status      int             `json:"-"`
+	Username    string          `json:"username,omitempty"`
+	DisplayName string          `json:"displayName,omitempty"`
+	HasEmail    bool            `json:"hasEmail,omitempty"`
+	Error       string          `json:"error,omitempty"`
+	Token       string          `json:"token,omitempty"`
+	Data        apiResponseData `json:"data,omitempty"`
 }
 
 type apiHandlerFunc func(db *sql.DB, req apiRequestData, resp apiResponseData) apiError
@@ -97,7 +100,8 @@ func handleApiRequest(w http.ResponseWriter, req *http.Request) {
 	b, err := json.Marshal(resp)
 	if err != nil {
 		errLog.Printf("json.Marshal() failed: %s", err)
-		// TODO: Generate internalServerError
+		resp.Status = http.StatusInternalServerError
+		b = []byte(INTERNAL_ERROR)
 	}
 
 	w.WriteHeader(resp.Status)
@@ -131,36 +135,61 @@ func generateApiResponse(httpReq *http.Request, apiResp *apiResponse) apiError {
 	}
 	defer db.Close()
 
-	authenticated := false
 	if handler.isAuthHandler {
-		// TODO: External authentication
-		// TODO: If user is new, add them to the user database table
-		// TODO: If user is new, indicate that in the JSON response so the client can prompt for e-mail address
+		u, err := config.AuthProvider(apiReq.Username, apiReq.Password)
+		if err != nil {
+			return &internalServerError{"Could not authenticate user", err}
+		}
 
-		if !authenticated {
+		if u == nil {
 			return &unauthorizedError{"Invalid authentication credentials"}
+		}
+
+		exists, err := userExists(db, u.Username)
+		if err != nil {
+			return &internalServerError{"Could not create session", err}
+		}
+
+		if !exists {
+			err := userCreate(db, u)
+			if err != nil {
+				return &internalServerError{"Could not create session", err}
+			}
 		}
 
 		token, err := sessionCreate(db, apiReq.Username)
 		if err != nil {
 			return &internalServerError{"Could not create session", err}
 		}
+
+		apiResp.DisplayName = u.DisplayName
+		apiResp.Username = u.Username
+		apiResp.HasEmail = u.Email != ""
 		apiResp.Token = token
 
 		return nil
 	} else {
-		authenticated, err = sessionIsValid(db, apiReq.Username, apiReq.Token)
+		u, err := userFetch(db, apiReq.Username)
+		if err != nil {
+			return &internalServerError{"Could not fetch user", err}
+		}
+
+		authenticated, err := sessionIsValid(db, apiReq.Username, apiReq.Token)
 		if err != nil {
 			return &internalServerError{"Could not check for valid session", err}
 		}
 
-		if !authenticated {
+		if u == nil || !authenticated {
 			return &unauthorizedError{"Invalid or expired authentication session"}
 		}
 
 		if apiReq.Data == nil {
 			apiReq.Data = make(map[string]interface{})
 		}
+
+		apiResp.DisplayName = u.DisplayName
+		apiResp.Username = u.Username
+		apiResp.HasEmail = u.Email != ""
 
 		apiReq.Data["_username"] = apiReq.Username
 		apiReq.Data["_token"] = apiReq.Token

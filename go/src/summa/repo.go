@@ -11,7 +11,7 @@ func repoPath(id string) string {
 }
 
 // repoCreate will create a new repository in the filesystem
-func repoCreate(id string, user *summaUser, files snippetFiles) error {
+func repoCreate(id string, u *User, files snippetFiles) error {
 	var err error
 	absPath := repoPath(id)
 	err = os.MkdirAll(absPath, 0755)
@@ -45,7 +45,7 @@ func repoCreate(id string, user *summaUser, files snippetFiles) error {
 	return nil
 }
 
-func repoUpdate(id string, user *summaUser, files snippetFiles) error {
+func repoUpdate(id string, u *User, files snippetFiles) error {
 	return nil
 }
 

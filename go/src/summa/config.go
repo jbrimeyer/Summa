@@ -5,19 +5,18 @@ import (
 	"io/ioutil"
 )
 
+type AuthProvider func(username, password string) (*User, error)
+
 type Config struct {
 	Listen        string
 	SSLEnable     bool
 	SessionExpire int64
+	AuthProvider  AuthProvider
 	DirPaths      map[string]string
 	FilePaths     map[string]string
 }
 
 var config *Config
-
-func ConfigLoad(path string) error {
-	return configLoad(path)
-}
 
 // Load server configuration from a file containing a
 // JSON object that maps to the config struct
@@ -33,6 +32,10 @@ func configLoad(path string) error {
 	}
 
 	return nil
+}
+
+func (c *Config) SetAuthProvider(ap AuthProvider) {
+	c.AuthProvider = ap
 }
 
 func (c *Config) WebRoot() string {
