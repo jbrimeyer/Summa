@@ -10,6 +10,7 @@ func repoPath(id string) string {
 	return path.Join(config.GitRoot(), id[:2], id[2:])
 }
 
+// repoCreate will create a new repository in the filesystem
 func repoCreate(id string, user *summaUser, files snippetFiles) error {
 	var err error
 	absPath := repoPath(id)
