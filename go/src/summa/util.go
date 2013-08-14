@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"syscall"
 )
 
@@ -57,6 +58,23 @@ func UnixMilliseconds() int64 {
 	return (int64(tv.Sec)*1e3 + int64(tv.Usec)/1e3)
 }
 
+// Reverse reverses a string
+func Reverse(s string) string {
+	n := 0
+	rune := make([]rune, len(s))
+	for _, r := range s {
+		rune[n] = r
+		n++
+	}
+	rune = rune[0:n]
+	// Reverse
+	for i := 0; i < n/2; i++ {
+		rune[i], rune[n-1-i] = rune[n-1-i], rune[i]
+	}
+	// Convert back to UTF-8.
+	return string(rune)
+}
+
 // FromBase36 convers a base36 string to an integer
 func FromBase36(s string) (int64, error) {
 	return strconv.ParseInt(s, 36, 64)
@@ -64,5 +82,5 @@ func FromBase36(s string) (int64, error) {
 
 // ToBase36 converts an integer into a base 36 string
 func ToBase36(i int64) string {
-	return strconv.FormatInt(i, 36)
+	return strings.ToUpper(strconv.FormatInt(i, 36))
 }
