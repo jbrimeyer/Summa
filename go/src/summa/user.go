@@ -2,7 +2,7 @@ package summa
 
 import ()
 
-type User struct {
+type summaUser struct {
 	Username    string
 	DisplayName string
 	Email       string

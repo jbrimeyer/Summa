@@ -189,15 +189,9 @@ func apiProfileUpdate(db *sql.DB, req apiRequestData, resp apiResponseData) apiE
 }
 
 func apiSnippet(db *sql.DB, req apiRequestData, resp apiResponseData) apiError {
-	var id int64
-	var err error
-	switch req["id"].(type) {
-	case string:
-		id, err = FromBase36(req["id"].(string))
-		if err != nil {
-			return &badRequestError{"Invalid snippet id"}
-		}
-	default:
+	id, ok := req["id"].(string)
+
+	if !ok {
 		return &badRequestError{"The 'id' field must be a string"}
 	}
 
@@ -229,6 +223,7 @@ func apiSnippetCreate(db *sql.DB, req apiRequestData, resp apiResponseData) apiE
 
 	switch req["files"].(type) {
 	case []interface{}:
+		filenames := make(map[string]bool)
 		for i, v := range req["files"].([]interface{}) {
 			switch v.(type) {
 			case map[string]interface{}:
@@ -244,9 +239,13 @@ func apiSnippetCreate(db *sql.DB, req apiRequestData, resp apiResponseData) apiE
 					fields[required] = strings.TrimSpace(strVal)
 				}
 
-				if !fileRegex.MatchString(fields["filename"]) {
+				lcFilename := strings.ToLower(fields["filename"])
+				_, ok := filenames[lcFilename]
+				if !fileRegex.MatchString(fields["filename"]) || ok {
 					return &conflictError{apiResponseData{"field": fmt.Sprintf("file[%d].filename", i)}}
 				}
+
+				filenames[lcFilename] = true
 
 				file.Filename = fields["filename"]
 				file.Language = fields["language"]
@@ -261,13 +260,15 @@ func apiSnippetCreate(db *sql.DB, req apiRequestData, resp apiResponseData) apiE
 		return &conflictError{apiResponseData{"field": "files"}}
 	}
 
-	snip.Files = &files
+	snip.Files = files
+	snip.Username = req["_username"].(string)
 
-	// TODO: Start database transaction
-	// TODO: Insert snippet into database
-	// TODO: Create git repository
-	// TODO: Any problems? roll back the transaction and cleanup filesystem
-	// TODO: All ok? return the snippet ID in resp
+	id, err := snippetCreate(db, &snip)
+	if err != nil {
+		return &internalServerError{"Could not create snippet", err}
+	}
+
+	resp["id"] = id
 
 	return nil
 }
@@ -278,7 +279,26 @@ func apiSnippetUpdate(db *sql.DB, req apiRequestData, resp apiResponseData) apiE
 }
 
 func apiSnippetDelete(db *sql.DB, req apiRequestData, resp apiResponseData) apiError {
-	// TODO: apiSnippetDelete
+	id, ok := req["id"].(string)
+
+	if !ok {
+		return &badRequestError{"The 'id' field must be a string"}
+	}
+
+	owned, err := snippetIsOwnedBy(db, id, req["_username"].(string))
+	if err != nil {
+		return &internalServerError{"Could not check snippet ownership", err}
+	}
+
+	if !owned {
+		return &forbiddenError{"You do not have permission to delete this snippet"}
+	}
+
+	err = snippetDelete(db, id)
+	if err != nil {
+		return &internalServerError{"Could not delete snippet", err}
+	}
+
 	return nil
 }
 

@@ -1,6 +1,6 @@
 CREATE TABLE "snippet_comment" (
 	"comment_id" INTEGER PRIMARY KEY AUTOINCREMENT,
-	"snippet_id" INTEGER,
+	"snippet_id" TEXT,
 	"username" TEXT,
 	"message" TEXT,
 	"created" INTEGER,
