@@ -18,7 +18,7 @@ func sessionIsValid(db *sql.DB, username, token string) (bool, error) {
 
 	// Remove expired sessions
 	_, err := db.Exec(
-		"DELETE FROM user_session WHERE timestamp <= ?",
+		"DELETE FROM user_session WHERE created <= ?",
 		expired,
 	)
 	if err != nil {
