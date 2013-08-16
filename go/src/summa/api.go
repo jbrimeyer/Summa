@@ -144,6 +144,7 @@ func generateApiResponse(httpReq *http.Request, apiResp *apiResponse) apiError {
 
 		apiResp.Token = token
 		apiResp.Data = make(map[string]interface{})
+		apiResp.Data["user"] = apiReq.User
 		apiResp.Data["needEmail"] = apiReq.User.Email == ""
 
 		return nil

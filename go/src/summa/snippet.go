@@ -107,6 +107,59 @@ func snippetCreate(db *sql.DB, snip *snippet, u *User) (string, error) {
 	return id, nil
 }
 
+func snippetUpdate(db *sql.DB, oldSnip, newSnip *snippet, u *User) error {
+	var err error
+
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer (func() {
+		if err == nil {
+			tx.Commit()
+		} else {
+			tx.Rollback()
+		}
+	})()
+
+	oldSnip.Updated = UnixMilliseconds()
+	oldSnip.Description = newSnip.Description
+
+	_, err = db.Exec(
+		"UPDATE snippet SET description=?,updated=? WHERE snippet_id=?",
+		oldSnip.Description,
+		oldSnip.Updated,
+		oldSnip.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("DELETE FROM snippet_file WHERE snippet_id=?", oldSnip.ID)
+	if err != nil {
+		return err
+	}
+
+	for _, file := range newSnip.Files {
+		_, err = db.Exec(
+			"INSERT INTO snippet_file VALUES (?,?,?)",
+			oldSnip.ID,
+			file.Filename,
+			file.Language,
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = repoUpdate(oldSnip.ID, u, oldSnip.Files, newSnip.Files)
+
+	oldSnip.Files = newSnip.Files
+
+	return nil
+}
+
 // snippetMarkReadBy will mark a snippet with a specified id as read
 // by a specific user
 func snippetMarkReadBy(db *sql.DB, id, username string) error {
@@ -253,12 +306,26 @@ func snippetFetch(db *sql.DB, id string) (*snippet, error) {
 		return nil, err
 	}
 
+	return &snip, nil
+}
+
+// snippetFetch will fetch an individual snippet by ID, including it's comments
+func snippetFetchAll(db *sql.DB, id string) (*snippet, error) {
+	snip, err := snippetFetch(db, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if snip == nil {
+		return nil, nil
+	}
+
 	snip.Comments, err = snippetFetchComments(db, id)
 	if err != nil {
 		return nil, err
 	}
 
-	return &snip, nil
+	return snip, nil
 }
 
 // snippetFetchComments will fetch the comments for a specific snippet

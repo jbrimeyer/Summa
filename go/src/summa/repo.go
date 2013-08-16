@@ -56,9 +56,55 @@ func repoCreate(id string, u *User, files snippetFiles) error {
 	return repo.Commit(u.DisplayName, u.Email)
 }
 
-func repoUpdate(id string, u *User, files snippetFiles) error {
-	// TODO: repoUpdate
-	return nil
+func repoUpdate(id string, u *User, oldFiles, newFiles snippetFiles) error {
+	absPath := repoPath(id)
+
+	repo, err := GitRepositoryOpen(absPath)
+	if err != nil {
+		return err
+	}
+
+	index, err := repo.Index()
+	if err != nil {
+		return err
+	}
+
+	for _, file := range oldFiles {
+		filePath := path.Join(absPath, file.Filename)
+		err = os.Remove(filePath)
+		if err != nil {
+			return err
+		}
+
+		infoLog.Printf("Removing %s", file.Filename)
+		err = index.Rm(file.Filename)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, file := range newFiles {
+		var f *os.File
+		filePath := path.Join(absPath, file.Filename)
+		f, err = os.Create(filePath)
+		if err != nil {
+			return err
+		}
+		_, err = f.WriteString(file.Contents)
+		if err != nil {
+			return err
+		}
+
+		infoLog.Printf("Adding %s", file.Filename)
+		err = index.Add(file.Filename)
+		if err != nil {
+			return err
+		}
+	}
+
+	infoLog.Printf("Committing")
+
+	return repo.Commit(u.DisplayName, u.Email)
 }
 
 // repoDelete will permanently delete the repository from the filesystem

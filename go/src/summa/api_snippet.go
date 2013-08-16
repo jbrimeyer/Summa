@@ -15,7 +15,7 @@ func apiSnippet(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
 		return &badRequestError{"The 'id' field must be a string"}
 	}
 
-	snippet, err := snippetFetch(db, id)
+	snippet, err := snippetFetchAll(db, id)
 	if err != nil {
 		return &internalServerError{"Could not fetch snippet", err}
 	}
@@ -46,12 +46,68 @@ func apiSnippet(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
 }
 
 func apiSnippetCreate(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
+	snip, apierr := apiValidateSnippetData(req)
+	if apierr != nil {
+		return apierr
+	}
+
+	id, err := snippetCreate(db, snip, req.User)
+	if err != nil {
+		return &internalServerError{"Could not create snippet", err}
+	}
+
+	snippetMarkReadBy(db, id, req.Username)
+
+	resp["id"] = id
+
+	return nil
+}
+
+func apiSnippetUpdate(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
+	id, ok := req.Data["id"].(string)
+
+	if !ok {
+		return &badRequestError{"The 'id' field must be a string"}
+	}
+
+	owned, err := snippetIsOwnedBy(db, id, req.Username)
+	if err != nil {
+		return &internalServerError{"Could not check snippet ownership", err}
+	}
+
+	if !owned {
+		return &forbiddenError{"You do not have permission to update this snippet"}
+	}
+
+	oldSnip, err := snippetFetch(db, id)
+	if err != nil {
+		return &internalServerError{"Could not fetch snippet", err}
+	}
+	newSnip, apierr := apiValidateSnippetData(req)
+	if apierr != nil {
+		return apierr
+	}
+
+	err = snippetUpdate(db, oldSnip, newSnip, req.User)
+	if err != nil {
+		return &internalServerError{"Could not update snippet", err}
+	}
+
+	snippetMarkUnread(db, id)
+	snippetMarkReadBy(db, id, req.Username)
+
+	resp["snippet"] = oldSnip
+
+	return nil
+}
+
+func apiValidateSnippetData(req apiRequest) (*snippet, apiError) {
 	reqForFiles := []string{"filename", "language", "contents"}
 	var snip snippet
 
 	snip.Description, _ = req.Data["description"].(string)
 	if snip.Description == "" {
-		return &conflictError{apiResponseData{"field": "description"}}
+		return nil, &conflictError{apiResponseData{"field": "description"}}
 	}
 
 	fileRegex := regexp.MustCompile("(?i)^[a-z0-9_.-]+$")
@@ -70,7 +126,7 @@ func apiSnippetCreate(db *sql.DB, req apiRequest, resp apiResponseData) apiError
 				for _, required := range reqForFiles {
 					strVal, ok := vmap[required].(string)
 					if !ok || strings.TrimSpace(strVal) == "" {
-						return &conflictError{apiResponseData{"field": fmt.Sprintf("file[%d].%s", i, required)}}
+						return nil, &conflictError{apiResponseData{"field": fmt.Sprintf("file[%d].%s", i, required)}}
 					}
 					fields[required] = strings.TrimSpace(strVal)
 				}
@@ -78,7 +134,7 @@ func apiSnippetCreate(db *sql.DB, req apiRequest, resp apiResponseData) apiError
 				lcFilename := strings.ToLower(fields["filename"])
 				_, ok := filenames[lcFilename]
 				if !fileRegex.MatchString(fields["filename"]) || ok {
-					return &conflictError{apiResponseData{"field": fmt.Sprintf("file[%d].filename", i)}}
+					return nil, &conflictError{apiResponseData{"field": fmt.Sprintf("file[%d].filename", i)}}
 				}
 
 				filenames[lcFilename] = true
@@ -89,31 +145,17 @@ func apiSnippetCreate(db *sql.DB, req apiRequest, resp apiResponseData) apiError
 
 				files = append(files, file)
 			default:
-				return &badRequestError{"'files' field is malformed"}
+				return nil, &badRequestError{"'files' field is malformed"}
 			}
 		}
 	default:
-		return &conflictError{apiResponseData{"field": "files"}}
+		return nil, &conflictError{apiResponseData{"field": "files"}}
 	}
 
 	snip.Files = files
 	snip.Username = req.Username
 
-	id, err := snippetCreate(db, &snip, req.User)
-	if err != nil {
-		return &internalServerError{"Could not create snippet", err}
-	}
-
-	snippetMarkReadBy(db, id, req.Username)
-
-	resp["id"] = id
-
-	return nil
-}
-
-func apiSnippetUpdate(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
-	// TODO: apiSnippetUpdate
-	return nil
+	return &snip, nil
 }
 
 func apiSnippetDelete(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
