@@ -25,6 +25,16 @@ func repoCreate(id string, u *User, files snippetFiles) error {
 		}
 	})()
 
+	repo, err := GitRepositoryInit(absPath, false)
+	if err != nil {
+		return err
+	}
+
+	index, err := repo.Index()
+	if err != nil {
+		return err
+	}
+
 	for _, file := range files {
 		var f *os.File
 		filePath := path.Join(absPath, file.Filename)
@@ -36,16 +46,18 @@ func repoCreate(id string, u *User, files snippetFiles) error {
 		if err != nil {
 			return err
 		}
+
+		err = index.Add(file.Filename)
+		if err != nil {
+			return err
+		}
 	}
 
-	// TODO: git init
-	// TODO: git add
-	// TODO: git commit
-
-	return nil
+	return repo.Commit(u.DisplayName, u.Email)
 }
 
 func repoUpdate(id string, u *User, files snippetFiles) error {
+	// TODO: repoUpdate
 	return nil
 }
 

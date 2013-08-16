@@ -101,15 +101,26 @@ func (r *GitRepository) Free() {
 }
 
 func (r *GitRepository) Commit(name, email string) error {
+	var ret C.int
+
 	var index *C.git_index
-	C.git_repository_index(&index, r.ptr)
+	ret = C.git_repository_index(&index, r.ptr)
+	if ret < 0 {
+		return GitErrorLast()
+	}
 	defer C.git_index_free(index)
 
 	treeOid := new(C.git_oid)
-	C.git_index_write_tree(treeOid, index)
+	ret = C.git_index_write_tree(treeOid, index)
+	if ret < 0 {
+		return GitErrorLast()
+	}
 
 	tree := new(C.git_tree)
-	C.git_tree_lookup(&tree, r.ptr, treeOid)
+	ret = C.git_tree_lookup(&tree, r.ptr, treeOid)
+	if ret < 0 {
+		return GitErrorLast()
+	}
 	defer C.git_tree_free(tree)
 
 	signature := new(C.git_signature)
@@ -117,13 +128,16 @@ func (r *GitRepository) Commit(name, email string) error {
 	defer C.free(unsafe.Pointer(cName))
 	cEmail := C.CString(email)
 	defer C.free(unsafe.Pointer(cEmail))
-	C.git_signature_now(&signature, cName, cEmail)
+	ret = C.git_signature_now(&signature, cName, cEmail)
+	if ret < 0 {
+		return GitErrorLast()
+	}
 	defer C.git_signature_free(signature)
 
 	headOid := new(C.git_oid)
 	cHead := C.CString("HEAD")
 	defer C.free(unsafe.Pointer(cHead))
-	ret := C.git_reference_name_to_id(headOid, r.ptr, cHead)
+	ret = C.git_reference_name_to_id(headOid, r.ptr, cHead)
 
 	commitOid := new(C.git_oid)
 	cMessage := C.CString("")
@@ -131,13 +145,16 @@ func (r *GitRepository) Commit(name, email string) error {
 
 	if ret == 0 {
 		head := new(C.git_commit)
-		C.git_commit_lookup(&head, r.ptr, headOid)
+		ret = C.git_commit_lookup(&head, r.ptr, headOid)
+		if ret < 0 {
+			return GitErrorLast()
+		}
 		defer C.git_commit_free(head)
 
 		parents := make([]*C.git_commit, 1)
 		parents[0] = head
 
-		C.git_commit_create(
+		ret = C.git_commit_create(
 			commitOid,
 			r.ptr,
 			cHead,
@@ -147,9 +164,10 @@ func (r *GitRepository) Commit(name, email string) error {
 			cMessage,
 			tree,
 			1,
-			&parents[0])
+			&parents[0],
+		)
 	} else {
-		C.git_commit_create(
+		ret = C.git_commit_create(
 			commitOid,
 			r.ptr,
 			cHead,
@@ -159,10 +177,18 @@ func (r *GitRepository) Commit(name, email string) error {
 			cMessage,
 			tree,
 			0,
-			nil)
+			nil,
+		)
 	}
 
-	C.git_index_write(index)
+	if ret < 0 {
+		return GitErrorLast()
+	}
+
+	ret = C.git_index_write(index)
+	if ret < 0 {
+		return GitErrorLast()
+	}
 
 	return nil
 }

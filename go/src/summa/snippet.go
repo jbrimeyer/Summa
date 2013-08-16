@@ -3,17 +3,9 @@ package summa
 import (
 	"database/sql"
 	_ "go-sqlite3"
+	"io/ioutil"
+	"path"
 )
-
-type snippetComment struct {
-	ID          int64  `json:"id"`
-	SnippetID   string `json:"-"`
-	Username    string `json:"username"`
-	DisplayName string `json:"displayName"`
-	Message     string `json:"message"`
-	Created     int64  `json:"created"`
-	Updated     int64  `json:"updated"`
-}
 
 type snippetFile struct {
 	SnippetID string `json:"-"`
@@ -22,7 +14,6 @@ type snippetFile struct {
 	Contents  string `json:"contents,omitempty"`
 }
 
-type snippetComments []snippetComment
 type snippetFiles []snippetFile
 
 type snippet struct {
@@ -39,8 +30,24 @@ type snippet struct {
 
 type snippets []snippet
 
+// snippetExists checks is a snippet with the given ID exists
+func snippetExists(db *sql.DB, id string) (bool, error) {
+	var count int64
+	row := db.QueryRow("SELECT COUNT(*) FROM snippet WHERE snippet_id=?", id)
+	err := row.Scan(&count)
+	if err != nil {
+		return false, err
+	}
+
+	if count == 0 {
+		return false, nil
+	}
+
+	return true, nil
+}
+
 // snippetCreate will create a new snippet and return it's id
-func snippetCreate(db *sql.DB, snip *snippet) (string, error) {
+func snippetCreate(db *sql.DB, snip *snippet, u *User) (string, error) {
 	var err error
 
 	tx, err := db.Begin()
@@ -60,15 +67,12 @@ func snippetCreate(db *sql.DB, snip *snippet) (string, error) {
 	var id string
 	for {
 		id = Reverse(ToBase36(ms))
-		var count int64
-		row := db.QueryRow("SELECT COUNT(*) FROM snippet WHERE snippet_id=?", id)
-		err = row.Scan(&count)
-
+		exists, err := snippetExists(db, id)
 		if err != nil {
 			return "", err
 		}
 
-		if count == 0 {
+		if !exists {
 			break
 		}
 
@@ -98,9 +102,42 @@ func snippetCreate(db *sql.DB, snip *snippet) (string, error) {
 		}
 	}
 
-	err = repoCreate(id, nil, snip.Files)
+	err = repoCreate(id, u, snip.Files)
 
 	return id, nil
+}
+
+// snippetMarkReadBy will mark a snippet with a specified id as read
+// by a specific user
+func snippetMarkReadBy(db *sql.DB, id, username string) error {
+	_, err := db.Exec(
+		"REPLACE INTO snippet_view VALUES (?,?)",
+		id,
+		username,
+	)
+
+	return err
+}
+
+// snippetMarkUnread will mark a snippet as unread by all users
+func snippetMarkUnread(db *sql.DB, id string) error {
+	_, err := db.Exec(
+		"DELETE FROM snippet_view WHERE snippet_id=?",
+		id,
+	)
+
+	return err
+}
+
+// snippetMarkUnread will mark a snippet as unread by all users
+func snippetMarkUnreadBy(db *sql.DB, id, username string) error {
+	_, err := db.Exec(
+		"DELETE FROM snippet_view WHERE snippet_id=? AND username=?",
+		id,
+		username,
+	)
+
+	return err
 }
 
 // snippetDelete permanently removes a snippet
@@ -161,6 +198,7 @@ func snippetsUnread(db *sql.DB, username string) (*snippets, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var snip snippet
@@ -220,8 +258,6 @@ func snippetFetch(db *sql.DB, id string) (*snippet, error) {
 		return nil, err
 	}
 
-	infoLog.Printf("%+v", snip.Comments)
-
 	return &snip, nil
 }
 
@@ -237,6 +273,7 @@ func snippetFetchComments(db *sql.DB, id string) (snippetComments, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var comment snippetComment
@@ -272,6 +309,9 @@ func snippetFetchFiles(db *sql.DB, id string) (snippetFiles, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
+	fsPath := repoPath(id)
 
 	for rows.Next() {
 		var file snippetFile
@@ -280,6 +320,14 @@ func snippetFetchFiles(db *sql.DB, id string) (snippetFiles, error) {
 			&file.Filename,
 			&file.Language,
 		)
+
+		filePath := path.Join(fsPath, file.Filename)
+		contents, err := ioutil.ReadFile(filePath)
+		if err != nil {
+			return nil, err
+		}
+
+		file.Contents = string(contents)
 
 		files = append(files, file)
 	}
