@@ -10,58 +10,36 @@
 		<link href="/css/fonts.css" rel="stylesheet" media="screen">
 		<link href="/css/summa.css" rel="stylesheet" media="screen">
 	</head>
-	<body>
-		<header id="page-header" class="clearfix">
-			<div class="container">
-				<h1>Summa</h1>
-				<div class="divider"></div>
-				<input id="header-search" type="search" class="form-control input-xsm" id="top-search" placeholder="Search...">
-				<div class="divider"></div>
-				<div id="header-links">
-					<a href="/" id="header-username" class="icon-user" data-toggle="tooltip" data-placement="bottom" title="View Your Snippets">
-						<span>Jeremy Brimeyer</span>
-					</a>
-					<a href="/" class="icon-inbox" data-toggle="tooltip" data-placement="bottom" title="Unread Snippets"></a>
-			  		<a href="/" class="icon-file" data-toggle="tooltip" data-placement="bottom" title="Create a New Snippet"></a>
-			  		<a href="/" class="icon-signout" data-toggle="tooltip" data-placement="bottom" title="Log Out"></a>
-			  </div>
-			</div>
-		</header>
-
-		<div class="container">
-			<div id="summa-summary" class="alert text-center">
-				<strong>Summa</strong> is a simple way to <strong>share snippets and pastes</strong> with others. All snippets are git repositories, so they are automatically <strong>versioned and cloneable</strong>.
-			</div>
-
-			<div class="bordered-box">
-				<textarea id="snippet-description" placeholder="Snippet description..."></textarea>
-			</div>
-
-			<div id="snippet-files"></div>
-
-			<div id="snippet-template" class="snippet-container bordered-box">
-				<div class="snippet">
-					<div class="snippet-details">
-						<input type="text" class="form-control input-xsm snippet-name" placeholder="Name this file...">
-						<select class="snippet-language chosen"></select>
-						<a href="/" class="snippet-remove icon-remove-circle"></a>
+	<body data-auth="0">
+		<div id="wrapper">
+			<header id="page-header" class="clearfix">
+				<div class="container">
+					<h1><a href="#/">Summa</a></h1>
+					<div class="auth-required">
+						<div class="divider"></div>
+						<input id="header-search" type="search" class="form-control input-xsm" id="top-search" placeholder="Search...">
+						<div class="divider"></div>
+						<div id="header-links">
+							<a href="#/profile" id="header-user" class="icon-user" data-toggle="tooltip" data-placement="bottom" title="View Your Snippets">
+								<span id="header-display-name"></span>
+							</a>
+							<a href="#/unread" class="icon-inbox" data-toggle="tooltip" data-placement="bottom" title="Unread Snippets"></a>
+							<a href="#/" class="icon-file" data-toggle="tooltip" data-placement="bottom" title="Create a New Snippet"></a>
+							<a href="#/logout" class="icon-signout" data-toggle="tooltip" data-placement="bottom" title="Log Out"></a>
+						</div>
 					</div>
-					<div class="snippet-editor"></div>
 				</div>
-			</div>
+			</header>
+
+			<div id="view" class="auth-required"></div>
 		</div>
 
-		<div class="container clearfix">
-			<div class="buttons-left">
-				<button type="button" id="btn-add-file" class="btn btn-sm btn-default">Add Another File</button>
-			</div>
-
-			<div class="buttons-right">
-				<button type="button" id="btn-create-snippet" class="btn btn-sm btn-success">Create Snippet</button>
-			</div>
-		</div>
-
-		<footer></footer>
+		<footer>
+			<a href="https://github.com/jbrimeyer/Summa">
+				<i class="icon-github"></i>
+				<span>Get the Code</span>
+			</a>
+		</footer>
 
 		<script src="/js/vendor/jquery.js"></script>
 		<script src="/js/vendor/bootstrap.js"></script>

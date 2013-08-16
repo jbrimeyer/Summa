@@ -1,0 +1,32 @@
+		<div class="container">
+			<div id="summa-summary" class="alert text-center">
+				<strong>Summa</strong> is a simple way to <strong>share snippets and pastes</strong> with others. All snippets are git repositories, so they are automatically <strong>versioned and cloneable</strong>.
+			</div>
+
+			<div class="bordered-box">
+				<textarea id="snippet-description" placeholder="Snippet description..."></textarea>
+			</div>
+
+			<div id="snippet-files"></div>
+
+			<div id="snippet-template" class="snippet-container bordered-box">
+				<div class="snippet">
+					<div class="snippet-details">
+						<input type="text" class="form-control input-xsm snippet-name" placeholder="Name this file...">
+						<select class="snippet-language chosen"></select>
+						<a href="/" class="snippet-remove icon-remove-circle"></a>
+					</div>
+					<div class="snippet-editor"></div>
+				</div>
+			</div>
+		</div>
+
+		<div class="container clearfix">
+			<div class="buttons-left">
+				<button type="button" id="btn-add-file" class="btn btn-sm btn-default">Add Another File</button>
+			</div>
+
+			<div class="buttons-right">
+				<button type="button" id="btn-create-snippet" class="btn btn-sm btn-success">Create Snippet</button>
+			</div>
+		</div>
