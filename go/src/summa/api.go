@@ -182,13 +182,3 @@ func apiAuthSignout(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
 	}
 	return nil
 }
-
-func apiProfile(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
-	// TODO: apiProfile()
-	return nil
-}
-
-func apiProfileUpdate(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
-	// TODO: apiProfileUpdate()
-	return nil
-}
