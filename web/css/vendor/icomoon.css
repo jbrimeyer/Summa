@@ -1,0 +1,71 @@
+@font-face {
+	font-family: 'icomoon';
+	src: url('/font/icomoon.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+/* Use the following CSS code if you want to use data attributes for inserting your icons */
+[data-icon]:before {
+	font-family: 'icomoon';
+	content: attr(data-icon);
+	speak: none;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+}
+
+/* Use the following CSS code if you want to have a class per icon */
+/*
+Instead of a list of all class selectors,
+you can use the generic selector below, but it's slower:
+[class*="icon-"] {
+*/
+.icon-user, .icon-signin, .icon-signout, .icon-spinner-dots, .icon-spinner, .icon-github, .icon-comment, .icon-inbox, .icon-inbox-empty, .icon-delete, .icon-edit, .icon-file {
+	font-family: 'icomoon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+}
+.icon-user:before {
+	content: "\e000";
+}
+.icon-signin:before {
+	content: "\e001";
+}
+.icon-signout:before {
+	content: "\e002";
+}
+.icon-spinner-dots:before {
+	content: "\e003";
+}
+.icon-spinner:before {
+	content: "\e004";
+}
+.icon-github:before {
+	content: "\e005";
+}
+.icon-comment:before {
+	content: "\e006";
+}
+.icon-inbox:before {
+	content: "\e009";
+}
+.icon-inbox-empty:before {
+	content: "\e00a";
+}
+.icon-delete:before {
+	content: "\e00f";
+}
+.icon-edit:before {
+	content: "\e011";
+}
+.icon-file:before {
+	content: "\e012";
+}
