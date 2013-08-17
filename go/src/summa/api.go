@@ -48,6 +48,7 @@ var (
 		"/api/comment/create":  apiCommentCreate,
 		"/api/comment/update":  apiCommentUpdate,
 		"/api/comment/delete":  apiCommentDelete,
+		"/api/snippets":        apiSnippets,
 		"/api/snippets/search": apiSnippetsSearch,
 		"/api/snippets/unread": apiSnippetsUnread,
 	}
