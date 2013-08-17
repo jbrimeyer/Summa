@@ -1,6 +1,6 @@
 CREATE TABLE "user_session" (
 	"username" TEXT,
 	"token" TEXT,
-	"timestamp" INTEGER,
+	"created" INTEGER,
 	PRIMARY KEY ("username", "token")
 );
