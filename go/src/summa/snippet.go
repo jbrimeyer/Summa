@@ -28,8 +28,6 @@ type snippet struct {
 	Revisions   []string        `json:"revisions,omitempty"`
 }
 
-type snippets []snippet
-
 // snippetExists checks is a snippet with the given ID exists
 func snippetExists(db *sql.DB, id string) (bool, error) {
 	var count int64
@@ -236,43 +234,6 @@ func snippetIsOwnedBy(db *sql.DB, id, username string) (bool, error) {
 	}
 
 	return count == 1, nil
-}
-
-// snippetsUnread will return unread snippets for a specific user
-func snippetsUnread(db *sql.DB, username string) (*snippets, error) {
-	var snips snippets
-
-	rows, err := db.Query(
-		"SELECT snippet_id,username,display_name,description,created,updated "+
-			"FROM snippet JOIN user USING (username) WHERE snippet_id NOT IN "+
-			"(SELECT snippet_id FROM snippet_view WHERE username=?)",
-		username,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var snip snippet
-
-		rows.Scan(
-			&snip.ID,
-			&snip.Username,
-			&snip.DisplayName,
-			&snip.Description,
-			&snip.Created,
-			&snip.Updated,
-		)
-
-		snips = append(snips, snip)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return &snips, nil
 }
 
 // snippetFetch will fetch an individual snippet by ID
