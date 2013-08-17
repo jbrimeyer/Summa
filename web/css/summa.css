@@ -3,7 +3,7 @@ html, body {
 }
 
 body {
-	font-family: 'Source Sans Pro';
+	font-family: 'Source Sans Pro', Helvetica, sans-serif;
 }
 
 body[data-auth="0"] .auth-required {
@@ -18,7 +18,7 @@ body[data-auth="0"] .auth-required {
 }
 
 
-/*---------------[ Chosen Overrides/Enhancements ]--------------*/
+/*----------------[ Chosen Overrides/Enhancements ]----------------*/
 .chosen-container-single .chosen-single {
 	font-size: 14px;
 	font-weight: 600;
@@ -34,10 +34,64 @@ body[data-auth="0"] .auth-required {
 }
 
 
+/*-----------------------[ Loading Circle ]------------------------*/
+.loading {
+	height: 16px;
+	width: 16px;
+	margin: 0 auto;
+	position: relative;
+	-webkit-animation: loading-animation-rotation 1s infinite linear;
+	-moz-animation: loading-animation-rotation 1s infinite linear;
+	animation: loading-animation-rotation 1s infinite linear;
+	border: 4px solid #d8d8d8;
+	border-radius: 100%;
+	box-sizing: content-box;
+	-moz-box-sizing: content-box;
+}
+
+.loading:before {
+	content: "";
+	display: block;
+	position: absolute;
+	left: -4px;
+	top: -4px;
+	height: 100%;
+	width: 100%;
+	border-top: 4px solid grey;
+	border-left: 4px solid transparent;
+	border-bottom: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-radius: 100%;
+	box-sizing: content-box;
+	-moz-box-sizing: content-box;
+}
+
+@-webkit-keyframes loading-animation-rotation {
+	from { -webkit-transform: rotate(0deg); }
+	to { -webkit-transform: rotate(359deg); }
+}
+
+@-moz-keyframes loading-animation-rotation {
+	from { -moz-transform: rotate(0deg); }
+	to { -moz-transform: rotate(359deg); }
+}
+
+@-o-keyframes loading-animation-rotation {
+	from { -o-transform: rotate(0deg); }
+	to { -o-transform: rotate(359deg); }
+}
+
+@keyframes loading-animation-rotation {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(359deg); }
+}
+
+
 /*-------------------------[ Page Wrapper ]------------------------*/
 #wrapper {
 	min-height: 100%;
 	margin: 0 auto -70px;
+	padding-bottom: 60px;
 }
 
 
@@ -65,7 +119,7 @@ body[data-auth="0"] .auth-required {
 #page-header h1 {
 	color: #333333;
 	float: left;
-	font-family: 'Source Sans Pro';
+	font-family: 'Source Sans Pro', Helvetica, sans-serif;
 	font-size: 26px;
 	font-weight: 900;
 	margin: 5px 0 0;
@@ -111,13 +165,13 @@ body[data-auth="0"] .auth-required {
 }
 
 #header-links .tooltip {
-	font-family: 'Source Sans Pro';
+	font-family: 'Source Sans Pro', Helvetica, sans-serif;
 	font-size: 11px;
 	text-shadow: none;
 }
 
 #header-user span {
-	font-family: 'Source Sans Pro';
+	font-family: 'Source Sans Pro', Helvetica, sans-serif;
 	font-weight: bold;
 	vertical-align: top;
 }
@@ -154,6 +208,58 @@ footer a:hover {
 footer .icon-github {
 	font-size: 20px;
 	margin-right: 5px;
+}
+
+
+/*--------------------------[ Auth Modal ]-------------------------*/
+#auth-modal .modal-dialog {
+	width: 400px;
+}
+
+#auth-modal .modal-footer {
+	margin-top: 0;
+	padding: 8px;
+}
+
+#auth-modal .form-group:last-child {
+	margin-bottom: 0;
+}
+
+#auth-modal .modal-header {
+	background-color: #f5f5f5;
+	border-radius: 6px 6px 0 0;
+	color: #666;
+	padding: 10px 15px;
+}
+
+#auth-modal .modal-header h1 {
+	font-family: 'Source Sans Pro', Helvetica, sans-serif;
+	font-size: 26px;
+}
+
+#auth-modal .modal-header strong {
+	color: #333;
+}
+
+#auth-modal .modal-footer .error {
+	color: #dd0000;
+	float: left;
+	font-weight: 600;
+	margin: 8px 0 0 4px;
+}
+
+#auth-modal .modal-footer {
+	position: relative;
+}
+
+#auth-modal .loading {
+	display: none;
+	margin-top: 4px;
+	position: absolute;
+}
+
+#auth-modal[data-loading="1"] .loading {
+	display: block;
 }
 
 
@@ -203,11 +309,11 @@ footer .icon-github {
 }
 
 .snippet-remove {
-	top: 7px;
+	top: 10px;
 	position: absolute;
 	right: 10px;
 	color: #aa6666;
-	font-size: 22px;
+	font-size: 18px;
 }
 
 .snippet-remove:hover {
