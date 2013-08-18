@@ -117,24 +117,29 @@ func generateApiResponse(httpReq *http.Request, apiResp *apiResponse) apiError {
 	defer db.Close()
 
 	if isAuthHandler {
-		apiReq.User, err = config.AuthProvider(apiReq.Username, apiReq.Password)
+		authUser, err := config.AuthProvider(apiReq.Username, apiReq.Password)
 		if err != nil {
 			return &internalServerError{"Could not authenticate user", err}
 		}
 
-		if apiReq.User == nil {
+		if authUser == nil {
 			return &unauthorizedError{"Invalid authentication credentials"}
 		}
 
-		exists, err := userExists(db, apiReq.User.Username)
+		exists, err := userExists(db, authUser.Username)
 		if err != nil {
 			return &internalServerError{"Could not create session", err}
 		}
 
 		if !exists {
-			err := userCreate(db, apiReq.User)
+			err := userCreate(db, authUser)
 			if err != nil {
 				return &internalServerError{"Could not create session", err}
+			}
+		} else {
+			authUser, err = userFetch(db, authUser.Username)
+			if err != nil {
+				return &internalServerError{"Could not fetch user", err}
 			}
 		}
 
@@ -142,6 +147,8 @@ func generateApiResponse(httpReq *http.Request, apiResp *apiResponse) apiError {
 		if err != nil {
 			return &internalServerError{"Could not create session", err}
 		}
+
+		apiReq.User = authUser
 
 		apiResp.Token = token
 		apiResp.Data = make(map[string]interface{})

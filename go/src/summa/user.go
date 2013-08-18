@@ -6,9 +6,9 @@ import (
 )
 
 type User struct {
-	Username    string
-	DisplayName string
-	Email       string
+	Username    string `json:"username"`
+	DisplayName string `json:"displayName"`
+	Email       string `json:"email"`
 }
 
 func userExists(db *sql.DB, username string) (bool, error) {
