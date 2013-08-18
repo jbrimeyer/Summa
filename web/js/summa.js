@@ -1,197 +1,13 @@
 (function () {
-	var defaultLang = 'Text';
-	var allLangs = {
-		'ABAP': {mode: 'abap', exts: ''},
-		'ActionScript': {mode: 'actionscript', exts: ''},
-		'Ada': {mode: 'ada', exts: ''},
-		'ApacheConf': {mode: '', exts: ''},
-		'Apex': {mode: '', exts: ''},
-		'AppleScript': {mode: '', exts: ''},
-		'Arc': {mode: '', exts: ''},
-		'Arduino': {mode: '', exts: ''},
-		'ASP': {mode: '', exts: ''},
-		'Assembly': {mode: 'assembly_x86', exts: ''},
-		'Augeas': {mode: '', exts: ''},
-		'AutoHotkey': {mode: 'autohotkey', exts: ''},
-		'Awk': {mode: '', exts: ''},
-		'Batchfile': {mode: 'batchfile', exts: ''},
-		'Befunge': {mode: '', exts: ''},
-		'BlitzMax': {mode: '', exts: ''},
-		'Boo': {mode: '', exts: ''},
-		'Brainfuck': {mode: '', exts: ''},
-		'Bro': {mode: '', exts: ''},
-		'C': {mode: 'c_cpp', exts: 'c,h'},
-		'C-ObjDump': {mode: '', exts: ''},
-		'C#': {mode: 'csharp', exts: 'cs'},
-		'C++': {mode: 'c_cpp', exts: 'C,cc,cpp,cxx,hpp,hxx'},
-		'C2hs Haskell': {mode: '', exts: ''},
-		'Ceylon': {mode: '', exts: ''},
-		'ChucK': {mode: '', exts: ''},
-		'CLIPS': {mode: '', exts: ''},
-		'Clojure': {mode: 'clojure', exts: ''},
-		'CMake': {mode: '', exts: ''},
-		'CoffeeScript': {mode: 'coffee', exts: ''},
-		'ColdFusion': {mode: 'coldfusion', exts: ''},
-		'Common Lisp': {mode: '', exts: ''},
-		'Coq': {mode: '', exts: ''},
-		'Cpp-ObjDump': {mode: '', exts: ''},
-		'CSS': {mode: 'css', exts: 'css'},
-		'Cucumber': {mode: '', exts: ''},
-		'Cython': {mode: '', exts: ''},
-		'D': {mode: 'd', exts: ''},
-		'D-ObjDump': {mode: '', exts: ''},
-		'Darcs Patch': {mode: '', exts: ''},
-		'Dart': {mode: 'dart', exts: 'dart'},
-		'DCPU-16 ASM': {mode: '', exts: ''},
-		'Delphi': {mode: '', exts: ''},
-		'Diff': {mode: 'diff', exts: ''},
-		'DOT': {mode: 'dot', exts: ''},
-		'Dylan': {mode: '', exts: ''},
-		'eC': {mode: '', exts: ''},
-		'Ecere Projects': {mode: '', exts: ''},
-		'Ecl': {mode: '', exts: ''},
-		'edn': {mode: '', exts: ''},
-		'Eiffel': {mode: '', exts: ''},
-		'Elixir': {mode: '', exts: ''},
-		'Elm': {mode: '', exts: ''},
-		'Emacs Lisp': {mode: '', exts: ''},
-		'Erlang': {mode: 'erlang', exts: ''},
-		'F#': {mode: '', exts: ''},
-		'Factor': {mode: '', exts: ''},
-		'Fancy': {mode: '', exts: ''},
-		'Fantom': {mode: '', exts: ''},
-		'fish': {mode: '', exts: ''},
-		'Forth': {mode: 'forth', exts: ''},
-		'FORTRAN': {mode: '', exts: ''},
-		'GAS': {mode: '', exts: ''},
-		'Genshi': {mode: '', exts: ''},
-		'Gentoo Ebuild': {mode: '', exts: ''},
-		'Gentoo Eclass': {mode: '', exts: ''},
-		'Gettext Catalog': {mode: '', exts: ''},
-		'Go': {mode: 'golang', exts: 'go'},
-		'Gosu': {mode: '', exts: ''},
-		'Groff': {mode: '', exts: ''},
-		'Groovy': {mode: 'groovy', exts: ''},
-		'Groovy Server Pages': {mode: '', exts: ''},
-		'Haml': {mode: 'haml', exts: ''},
-		'Handlebars': {mode: '', exts: ''},
-		'Haskell': {mode: 'haskell', exts: ''},
-		'Haxe': {mode: 'haxe', exts: ''},
-		'HTML': {mode: 'html', exts: 'htm,html'},
-		'HTML+Django': {mode: '', exts: ''},
-		'HTML+ERB': {mode: '', exts: ''},
-		'HTML+PHP': {mode: '', exts: ''},
-		'HTTP': {mode: '', exts: ''},
-		'INI': {mode: 'ini', exts: ''},
-		'Io': {mode: '', exts: ''},
-		'Ioke': {mode: '', exts: ''},
-		'IRC log': {mode: '', exts: ''},
-		'Java': {mode: 'java', exts: 'java'},
-		'Java Server Pages': {mode: '', exts: ''},
-		'JavaScript': {mode: 'javascript', exts: 'js'},
-		'JSON': {mode: 'json', exts: 'json'},
-		'Julia': {mode: 'julia', exts: ''},
-		'Kotlin': {mode: '', exts: ''},
-		'Lasso': {mode: '', exts: ''},
-		'Less': {mode: 'less', exts: ''},
-		'LilyPond': {mode: '', exts: ''},
-		'Literate CoffeeScript': {mode: '', exts: ''},
-		'Literate Haskell': {mode: '', exts: ''},
-		'LiveScript': {mode: 'livescript', exts: ''},
-		'LLVM': {mode: '', exts: ''},
-		'Logos': {mode: '', exts: ''},
-		'Logtalk': {mode: '', exts: ''},
-		'Lua': {mode: 'lua', exts: ''},
-		'Makefile': {mode: 'makefile', exts: ''},
-		'Mako': {mode: '', exts: ''},
-		'Markdown': {mode: 'markdown', exts: 'md'},
-		'Matlab': {mode: 'matlab', exts: ''},
-		'Max': {mode: '', exts: ''},
-		'MiniD': {mode: '', exts: ''},
-		'Mirah': {mode: '', exts: ''},
-		'Monkey': {mode: '', exts: ''},
-		'Moocode': {mode: '', exts: ''},
-		'MoonScript': {mode: '', exts: ''},
-		'mupad': {mode: '', exts: ''},
-		'Myghty': {mode: '', exts: ''},
-		'Nemerle': {mode: '', exts: ''},
-		'Nginx': {mode: '', exts: ''},
-		'Nimrod': {mode: '', exts: ''},
-		'NSIS': {mode: '', exts: ''},
-		'Nu': {mode: '', exts: ''},
-		'NumPy': {mode: '', exts: ''},
-		'ObjDump': {mode: '', exts: ''},
-		'Objective-C': {mode: 'objectivec', exts: ''},
-		'Objective-J': {mode: '', exts: ''},
-		'OCaml': {mode: 'ocaml', exts: ''},
-		'Omgrofl': {mode: '', exts: ''},
-		'ooc': {mode: '', exts: ''},
-		'Opa': {mode: '', exts: ''},
-		'OpenCL': {mode: '', exts: ''},
-		'OpenEdge ABL': {mode: '', exts: ''},
-		'Parrot': {mode: '', exts: ''},
-		'Parrot Assembly': {mode: '', exts: ''},
-		'Parrot Internal Representation': {mode: '', exts: ''},
-		'Perl': {mode: 'perl', exts: 'pl'},
-		'PHP': {mode: 'php', exts: 'php'},
-		'Pike': {mode: '', exts: ''},
-		'PogoScript': {mode: '', exts: ''},
-		'PowerShell': {mode: 'powershell', exts: ''},
-		'Prolog': {mode: 'prolog', exts: ''},
-		'Puppet': {mode: '', exts: ''},
-		'Pure Data': {mode: '', exts: ''},
-		'Python': {mode: 'python', exts: 'py'},
-		'Python traceback': {mode: '', exts: ''},
-		'R': {mode: 'r', exts: ''},
-		'Racket': {mode: '', exts: ''},
-		'Ragel in Ruby Host': {mode: '', exts: ''},
-		'Raw token data': {mode: '', exts: ''},
-		'Rebol': {mode: '', exts: ''},
-		'Redcode': {mode: '', exts: ''},
-		'reStructuredText': {mode: '', exts: ''},
-		'RHTML': {mode: '', exts: ''},
-		'Rouge': {mode: '', exts: ''},
-		'Ruby': {mode: 'ruby', exts: 'rb'},
-		'Rust': {mode: 'rust', exts: ''},
-		'Sage': {mode: '', exts: ''},
-		'Sass': {mode: 'sass', exts: ''},
-		'Scala': {mode: 'scala', exts: ''},
-		'Scheme': {mode: 'scheme', exts: ''},
-		'Scilab': {mode: '', exts: ''},
-		'SCSS': {mode: 'scss', exts: ''},
-		'Self': {mode: '', exts: ''},
-		'Shell': {mode: 'sh', exts: ''},
-		'Smalltalk': {mode: '', exts: ''},
-		'Smarty': {mode: '', exts: ''},
-		'SQL': {mode: 'sql', exts: 'sql'},
-		'Standard ML': {mode: '', exts: ''},
-		'SuperCollider': {mode: '', exts: ''},
-		'Tcl': {mode: 'tcl', exts: ''},
-		'Tcsh': {mode: '', exts: ''},
-		'Tea': {mode: '', exts: ''},
-		'TeX': {mode: 'tex', exts: ''},
-		'Text': {mode: 'text', exts: ''},
-		'Textile': {mode: 'textile', exts: ''},
-		'TOML': {mode: 'toml', exts: ''},
-		'Turing': {mode: '', exts: ''},
-		'Twig': {mode: 'twig', exts: ''},
-		'TXL': {mode: '', exts: ''},
-		'TypeScript': {mode: 'typscript', exts: ''},
-		'Vala': {mode: '', exts: ''},
-		'Verilog': {mode: '', exts: ''},
-		'VHDL': {mode: '', exts: ''},
-		'VimL': {mode: '', exts: ''},
-		'Visual Basic': {mode: '', exts: ''},
-		'XML': {mode: 'xml', exts: 'xml'},
-		'XProc': {mode: '', exts: ''},
-		'XQuery': {mode: '', exts: ''},
-		'XS': {mode: '', exts: ''},
-		'XSLT': {mode: '', exts: ''},
-		'Xtend': {mode: '', exts: ''},
-		'YAML': {mode: 'yaml', exts: 'yaml'}
+	'use strict';
+
+	var _consts = {
+		ROUTE_DEFAULT: '/',
+		COOKIE_NAME: 'summa',
+		PATH_VIEWS: '/views/'
 	};
-	var langByExt = {};
-	var $snippetFiles;
+	var _routes;
+	var _user;
 
 	/**
 	 * Start a POST request to the Summa API
@@ -202,6 +18,15 @@
 	 * @private
 	 */
 	var _postToApi = function _postToApi(url, data) {
+		if (typeof data === 'undefined') {
+			data = {};
+		}
+
+		if (!data.username) {
+			data.username = _user.username;
+			data.token = _user.token;
+		}
+
 		return $.ajax({
 			type: 'POST',
 			url: url,
@@ -212,238 +37,380 @@
 	};
 
 	/**
-	 * Scroll an element into view if it is not currently in view
+	 * Show a modal
 	 *
-	 * @param {jQuery} $el The jQuery object containing the element to scroll into view
-	 * @param {Object} [options] Options
-	 * @param {boolean} [options.focus=true] Focus the element after scroll
+	 * @param {string} modal The selector of the modal to show
 	 * @private
 	 */
-	var _scrollIntoView = function _scrollIntoView($el, options) {
-		var opts = $.extend({
-				focus: true,
-				topMargin: 20
-			},
-			options
-		);
-
-		function focus() {
-			if (opts.focus === true) {
-				$el.focus();
-			}
-			else if (opts.focus !== false) {
-				$(opts.focus).focus();
-			}
-		}
-
-		var $window = $(window);
-		var scrollTop = $window.scrollTop();
-		var docViewBottom = scrollTop + $window.height();
-		var offset = $el.offset();
-		offset.bottom = offset.top + $el.height();
-		var inView = ((offset.bottom <= docViewBottom) && (offset.top >= scrollTop));
-
-		if (!inView) {
-			var newScrollTop = Math.max(offset.top - opts.topMargin, 0);
-
-			$('html, body').animate(
-				{scrollTop: newScrollTop},
-				focus
-			);
-		}
-		else {
-			focus();
-		}
+	var _showModal = function _showModal(modal) {
+		$(modal).modal();
 	};
 
 	/**
-	 * Update the number of files present for this snippet
+	 * Hide a modal
+	 *
+	 * @param {string} modal The selector of the modal to hide
+	 * @private
+	 */
+	var _hideModal = function _hideModal(modal) {
+		$(modal).modal('hide');
+	};
+
+	/**
+	 * Start the user authentication process, generally when
+	 * the sign in button is clicked on the authentication modal
 	 *
 	 * @private
 	 */
-	var _updateFileCount = function _updateFileCount() {
-		var numFiles = $snippetFiles.find('.snippet-container').length;
-		$snippetFiles.attr('data-files', numFiles);
-	};
+	var _saveEmail = function _saveEmail() {
+		_modalLoading(true, '#email-modal');
 
-	/**
-	 * Handler triggered when user clicks the "Add Another File" button
-	 * @private
-	 */
-	var _addFile = function _addFile(options) {
-		var opts = $.extend({
-				focus: true,
-				scrollTo: true
-			},
-			options
-		);
+		var apiData = {data: {}};
 
-		var $file = $('#snippet-template')
-			.clone()
-			.appendTo($snippetFiles)
-			.removeAttr('id');
-
-		var editor = ace.edit($file.find('.snippet-editor').get(0));
-		editor.setShowPrintMargin(false);
-		editor.setShowFoldWidgets(false);
-		editor.setTheme('ace/theme/chrome');
-
-		var session = editor.getSession();
-		session.setTabSize(3);
-		session.setUseSoftTabs(false);
-		session.setUseWorker(false);
-		session.setMode('ace/mode/text');
-
-		$file.find('.chosen').chosen();
-;
-		if (opts.scrollTo === true) {
-			if (opts.focus === true) {
-				opts.focus = $file.find('.snippet-name');
-			}
-			_scrollIntoView($file, {focus: opts.focus});
+		apiData.data.email = $('#email-address').val().trim();
+		if (apiData.data.email === '') {
+			_setModalError('E-mail Address is required', '#email-modal', '#email-address');
+			return;
 		}
 
-		_updateFileCount();
+		apiData.data.displayName = _user.displayName;
+
+		_postToApi('/api/profile/update', apiData)
+			.done(function authDone(json) {
+				_user.hasEmail = true;
+				_saveUserInfo();
+				_modalLoading(false, '#email-modal');
+				_hideModal('#email-modal');
+				_hashChange();
+			})
+			.fail(function authFail(xhr) {
+				// TODO: Handle all types of errors
+			});
 	};
 
 	/**
-	 * Handler triggered when the user clicks on the remove icon
-	 * for a given file
+	 * Check if the user is signed in
 	 *
 	 * @returns {boolean}
 	 * @private
 	 */
-	var _removeFile = function _removeFile() {
-		var $file = $(this).parents('.snippet-container');
-		$file.remove();
-		_updateFileCount();
-		return false;
+	var _isSignedIn = function _isSignedIn() {
+		return _user.username !== null;
 	};
 
 	/**
-	 * Initialize the available languages that can be selected
-	 * from when adding/editing a file
+	 * Check if the user has an e-mail address set
 	 *
+	 * @returns {boolean}
 	 * @private
 	 */
-	var _initLanguages = function _initLanguages() {
-		var $select = $('#snippet-template').find('.snippet-language');
-		for (var lang in allLangs) {
-			$select.append(
-				'<option value="' + lang + '">' + lang + '</option>'
-			);
+	var _hasEmail = function _hasEmail() {
+		return _user.hasEmail;
+	};
 
-			var exts = allLangs[lang].exts.split(',');
-			for (var i = 0; i < exts.length; i++) {
-				if (exts[i] !== '') {
-					langByExt[exts[i]] = lang;
-				}
-			}
+	/**
+	 * Update the page authentication status
+	 * @private
+	 */
+	var _updateAuthStatus = function _updateAuthStatus() {
+		var dataAuth = 0;
+		var displayName = '';
+
+		if (_isSignedIn()) {
+			dataAuth = 1;
+			displayName = _user.displayName;
 		}
 
-		$select.children('[value="' + defaultLang + '"]').attr('selected', 'selected');
+		$('#header-display-name').text(displayName);
+		$('body').attr('data-auth', dataAuth);
 	};
 
 	/**
-	 * Handler triggered when a user selects a different language from
-	 * the drop down selection field
+	 * Clear the _user variable and cookie
 	 *
 	 * @private
 	 */
-	var _updateEditorMode = function _updateEditorMode(evt, opt) {
-		var $editor = $(this).parents('.snippet').find('.snippet-editor');
-		var editor = ace.edit($editor.get(0));
-		var mode = allLangs[defaultLang].mode;
+	var _clearUser = function _clearUser() {
+		_user = {
+			username: null,
+			displayName: null,
+			token: null,
+			hasEmail: false
+		};
+	};
 
-		if (allLangs[opt.selected].mode !== '') {
-			mode = allLangs[opt.selected].mode;
+	/**
+	 * Set the error message in a modal
+	 *
+	 * @param {string} message The message to display
+	 * @param {string} modal The selector of the modal
+	 * @param {string} [focus] The selector of the element to focus
+	 * @private
+	 */
+	var _setModalError = function _setModalError(message, modal, focus) {
+		$(modal).find('.error').text(message);
+
+		if (typeof focus !== 'undefined') {
+			$(focus).focus();
 		}
 
-		editor.getSession().setMode('ace/mode/' + mode);
+		_modalLoading(false, modal);
 	};
 
 	/**
-	 * Gather up all of the files into an object that can be
-	 * converted to JSON and submitted to the API
+	 * Update a modal to indicate if a
+	 * background task is being executed
 	 *
+	 * @param {boolean} isLoading
+	 * @param {string} modal The selector of the model to update
 	 * @private
 	 */
-	var _gatherSnippet = function _gatherSnippet() {
-		var snippet = {};
-		var $description = $('#snippet-description');
+	var _modalLoading = function _modalLoading(isLoading, modal) {
+		isLoading = (isLoading !== false);
 
-		snippet.description = $description.val().trim();
-		if (snippet.description === '') {
-			alert('Please enter a short description of your snippet');
-			_scrollIntoView($description);
-			return false;
+		if (isLoading) {
+			_setModalError('', modal);
+			$(modal).attr('data-loading', 1);
+			$(modal).find('.btn-primary').attr('disabled', 'disabled');
 		}
-
-		snippet.files = {};
-		$snippetFiles.find('.snippet').each(function () {
-			var $snippet = $(this);
-			var $name = $snippet.find('.snippet-name');
-			var name = $name.val().trim();
-
-			if (name === '') {
-				alert('All files must have a name');
-				// TODO: Check for valid filename (alphanumeric, dash, underscore, period)
-				_scrollIntoView($name);
-				snippet = false;
-				return false;
-			}
-
-			if (typeof snippet.files[name] !== 'undefined') {
-				alert('All file names must be unique');
-				_scrollIntoView($name);
-				snippet = false;
-				return false;
-			}
-
-			var editor = ace.edit($snippet.find('.snippet-editor').get(0));
-
-			snippet.files[name] = {
-				lang: $snippet.find('.snippet-language').val(),
-				content: editor.getValue()
-			};
-
-			return true;
-		});
-
-		return snippet;
+		else {
+			$(modal).attr('data-loading', 0);
+			$(modal).find('.btn-primary').removeAttr('disabled');
+		}
 	};
 
 	/**
-	 * Handler triggered when the user clicks on the "Create Snippet" button
+	 * Start the user authentication process, generally when
+	 * the sign in button is clicked on the authentication modal
 	 *
 	 * @private
 	 */
-	var _createSnippet = function _createSnippet() {
-		var snippet = _gatherSnippet();
-		if (snippet === false) {
+	var _authenticate = function _authenticate() {
+		_modalLoading(true, '#auth-modal');
+
+		var apiData = {};
+
+		apiData.username = $('#auth-username').val().trim();
+		if (apiData.username === '') {
+			_setModalError('Username is required', '#auth-modal', '#auth-username');
 			return;
 		}
 
-		_postToApi('/api/snippet/create', snippet)
-			.fail(function () {
-				console.log('FAIL', arguments);
+		apiData.password = $('#auth-password').val().trim();
+		if (apiData.password === '') {
+			_setModalError('Password is required', '#auth-modal', '#auth-password');
+			return;
+		}
+
+		_postToApi('/api/auth/signin', apiData)
+			.done(function authDone(json) {
+				_user.username = json.data.user.username;
+				_user.displayName = json.data.user.displayName;
+				_user.hasEmail = !json.data.needEmail;
+				_user.token = json.token;
+
+				_saveUserInfo();
+				_updateAuthStatus();
+				_modalLoading(false, '#auth-modal');
+				_hideModal('#auth-modal');
+
+				if (json.data.needEmail) {
+					_showModal('#email-modal');
+				}
+				else {
+					_hashChange();
+				}
 			})
-			.done(function (data) {
-				console.log('DONE', arguments);
+			.fail(function authFail(xhr) {
+				// TODO: Handle all types of errors
+				if (xhr.status === 401) {
+					_setModalError('Authentication failed!', '#auth-modal');
+				}
 			});
 	};
 
+	/**
+	 * Sign user out of Summa
+	 *
+	 * @private
+	 */
+	var _signOut = function _signOut() {
+		_postToApi('/api/auth/signout');
+		_deleteUserInfo();
+		_updateAuthStatus();
+		_setHash(_consts.ROUTE_DEFAULT);
+	};
 
-	// Initialization on page ready
-	$(function () {
-		$snippetFiles = $('#snippet-files');
+	/**
+	 * Save the user login information stored in _user
+	 * to a browser cookie
+	 *
+	 * @private
+	 */
+	var _saveUserInfo = function _saveUserInfo() {
+		var userInfo = btoa(JSON.stringify(_user));
+
+		document.cookie =
+			_consts.COOKIE_NAME + '=' + encodeURIComponent(userInfo);
+	};
+
+	/**
+	 * Restore the user login information stored in a
+	 * browser cookie to the _user variable
+	 *
+	 * @private
+	 */
+	var _restoreUserInfo = function _restoreUserInfo() {
+		var cookies = document.cookie.split('; ');
+		for (var i = 0; i < cookies.length; i++) {
+			var cookie = cookies[i].split('=');
+
+			if (cookie[0] === _consts.COOKIE_NAME) {
+				var value = decodeURIComponent(cookie[1]);
+				_user = JSON.parse(atob(value));
+				break;
+			}
+		}
+	};
+
+	/**
+	 * Delete the user login information stored in
+	 * _user and the browser cookie
+	 * @private
+	 */
+	var _deleteUserInfo = function _deleteUserInfo() {
+		_clearUser();
+		document.cookie =
+			_consts.COOKIE_NAME + '=deleted; expires=' + new Date(0).toUTCString();
+	};
+
+	/**
+	 * Get the current page hash string
+	 *
+	 * @returns {string}
+	 * @private
+	 */
+	var _getHash = function _getHash() {
+		return window.location.hash.slice(1);
+	};
+
+	/**
+	 * Set the page hash string
+	 *
+	 * @param value
+	 * @private
+	 */
+	var _setHash = function _setHash(value) {
+		window.location.hash = value;
+	};
+
+	/**
+	 * Initialize the user interface
+	 *
+	 * @private
+	 */
+	var _initUi = function _initUi() {
+		$(window).on('hashchange', _hashChange);
 		$('[data-toggle="tooltip"]').tooltip();
-		$('#btn-add-file').click(_addFile);
-		$('#btn-create-snippet').click(_createSnippet);
-		_initLanguages();
-		_addFile({scrollTo: false});
 
-		$snippetFiles.on('click', '.snippet-remove', _removeFile);
-		$snippetFiles.on('change', '.snippet-language', _updateEditorMode);
+		$('#auth-button').click(_authenticate);
+		$('#auth-modal')
+			.on('hide.bs.modal', function (e) {
+				if (!_isSignedIn()) {
+					e.preventDefault();
+				}
+			});
+
+		$('#email-button').click(_saveEmail);
+		$('#email-modal')
+			.on('hide.bs.modal', function (e) {
+				if (!_hasEmail()) {
+					e.preventDefault();
+				}
+			});
+	};
+
+	/**
+	 * Fetch a route based on the path
+	 *
+	 * @param {string} path
+	 * @returns {Object|null}
+	 * @private
+	 */
+	var _fetchRoute = function _fetchRoute(path) {
+		if (typeof _routes[path] === 'undefined') {
+			// TODO: Deep lookup of route using regexp
+			return null;
+		}
+
+		return _routes[path];
+	};
+
+	/**
+	 * Setup handler for hash change events
+	 */
+	var _hashChange = function _hashChange() {
+		_updateAuthStatus();
+
+		if (!_isSignedIn()) {
+			_showModal('#auth-modal');
+		}
+		else if (!_hasEmail()) {
+			_showModal('#email-modal');
+		}
+		else {
+			var hash = _getHash();
+			var route = _fetchRoute(hash);
+
+			if (route === null) {
+				// TODO: 404
+				console.log('No route for ' + hash);
+				return;
+			}
+
+			if (typeof route.handler === 'function') {
+				route.handler();
+			}
+			else {
+				// TODO: Do something with route.view
+			}
+		}
+	};
+
+	_routes = {
+		'/': {
+			view: 'index.html'
+		},
+		'/signout': {
+			handler: _signOut
+		},
+		'/profile': {
+			view: 'profile.html'
+		},
+		'/search': {
+			view: 'search.html'
+		},
+		'/snippet/{snippetId}': {
+			view: 'snippet.html'
+		},
+		'/unread': {
+			view: 'search.html'
+		}
+	};
+
+	/**
+	 * Initialization on document ready
+	 */
+	$(function () {
+		_initUi();
+		_clearUser();
+		_restoreUserInfo();
+
+		if (_getHash() === '') {
+			_setHash(_consts.ROUTE_DEFAULT);
+		}
+		else {
+			_hashChange();
+		}
 	});
 })();
