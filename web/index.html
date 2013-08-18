@@ -5,41 +5,91 @@
 		<title>Summa</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="/css/vendor/bootstrap.css" rel="stylesheet" media="screen">
-		<link href="/css/vendor/font-awesome.css" rel="stylesheet" media="screen">
+		<link href="/css/vendor/icomoon.css" rel="stylesheet" media="screen">
 		<link href="/css/vendor/chosen.css" rel="stylesheet" media="screen">
 		<link href="/css/fonts.css" rel="stylesheet" media="screen">
 		<link href="/css/summa.css" rel="stylesheet" media="screen">
 	</head>
 	<body data-auth="0">
-		<div id="wrapper">
+		<div id="wrapper" class="auth-required">
 			<header id="page-header" class="clearfix">
 				<div class="container">
 					<h1><a href="#/">Summa</a></h1>
-					<div class="auth-required">
-						<div class="divider"></div>
-						<input id="header-search" type="search" class="form-control input-xsm" id="top-search" placeholder="Search...">
-						<div class="divider"></div>
-						<div id="header-links">
-							<a href="#/profile" id="header-user" class="icon-user" data-toggle="tooltip" data-placement="bottom" title="View Your Snippets">
-								<span id="header-display-name"></span>
-							</a>
-							<a href="#/unread" class="icon-inbox" data-toggle="tooltip" data-placement="bottom" title="Unread Snippets"></a>
-							<a href="#/" class="icon-file" data-toggle="tooltip" data-placement="bottom" title="Create a New Snippet"></a>
-							<a href="#/logout" class="icon-signout" data-toggle="tooltip" data-placement="bottom" title="Log Out"></a>
-						</div>
+					<div class="divider"></div>
+					<input id="header-search" type="search" class="form-control input-xsm" id="top-search" placeholder="Search...">
+					<div class="divider"></div>
+					<div id="header-links">
+						<a href="#/profile" id="header-user" class="icon-user" data-toggle="tooltip" data-placement="bottom" title="View Your Snippets">
+							<span id="header-display-name"></span>
+						</a>
+						<a href="#/unread" class="icon-inbox" data-toggle="tooltip" data-placement="bottom" title="Unread Snippets"></a>
+						<a href="#/" class="icon-file" data-toggle="tooltip" data-placement="bottom" title="Create a New Snippet"></a>
+						<a href="#/signout" class="icon-signout" data-toggle="tooltip" data-placement="bottom" title="Sign Out"></a>
 					</div>
 				</div>
 			</header>
 
-			<div id="view" class="auth-required"></div>
-		</div>
+			<div id="view"></div>
+		</div> <!-- /#wrapper -->
 
-		<footer>
+		<footer class="auth-required">
 			<a href="https://github.com/jbrimeyer/Summa">
 				<i class="icon-github"></i>
 				<span>Get the Code</span>
 			</a>
 		</footer>
+
+		<div id="auth-modal" class="modal fade" data-loading="0">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title"><strong>Summa</strong>: Please Sign In</h1>
+					</div>
+					<div class="modal-body">
+						<form class="form-horizontal" role="form">
+							<div class="form-group">
+								<input type="text" class="form-control col-lg-12" id="auth-username" placeholder="Username">
+							</div>
+							<div class="form-group">
+								<input type="password" class="form-control col-lg-12" id="auth-password" placeholder="Password">
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<div class="loading"></div>
+						<div id="auth-error" class="error"></div>
+						<button id="auth-button" type="button" class="btn btn-primary">Sign In</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
+		<div id="email-modal" class="modal fade" data-loading="0">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title">Set Your E-mail Address</h1>
+					</div>
+					<div class="modal-body">
+						<form class="form-horizontal" role="form">
+							<div class="form-group">
+								Your e-mail address will be used to identify you in the
+								Git commit logs that are generated when you create or
+								edit a snippet.
+							</div>
+							<div class="form-group">
+								<input type="text" class="form-control col-lg-12" id="email-address" placeholder="E-mail Address">
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<div class="loading"></div>
+						<div id="email-error" class="error"></div>
+						<button id="email-button" type="button" class="btn btn-primary">Save</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
 
 		<script src="/js/vendor/jquery.js"></script>
 		<script src="/js/vendor/bootstrap.js"></script>

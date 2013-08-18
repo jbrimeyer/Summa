@@ -17,6 +17,50 @@ body[data-auth="0"] .auth-required {
 	padding: 5px;
 }
 
+.modal-header {
+	background-color: #f5f5f5;
+	border-radius: 6px 6px 0 0;
+	color: #666;
+	padding: 10px 15px;
+}
+
+.modal-header h1 {
+	font-family: 'Source Sans Pro', Helvetica, sans-serif;
+	font-size: 26px;
+}
+
+.modal-header strong {
+	color: #333;
+}
+
+.modal-body .form-group:last-child {
+	margin-bottom: 0;
+}
+
+.modal-footer {
+	margin-top: 0;
+	padding: 8px;
+	position: relative;
+}
+
+.modal-footer .error {
+	color: #dd0000;
+	float: left;
+	font-weight: 600;
+	margin: 8px 0 0 4px;
+}
+
+.modal-footer .loading {
+	display: none;
+	margin-top: 4px;
+	position: absolute;
+}
+
+.modal[data-loading="1"] .loading {
+	display: block;
+}
+
+
 
 /*----------------[ Chosen Overrides/Enhancements ]----------------*/
 .chosen-container-single .chosen-single {
@@ -216,50 +260,10 @@ footer .icon-github {
 	width: 400px;
 }
 
-#auth-modal .modal-footer {
-	margin-top: 0;
-	padding: 8px;
-}
 
-#auth-modal .form-group:last-child {
-	margin-bottom: 0;
-}
-
-#auth-modal .modal-header {
-	background-color: #f5f5f5;
-	border-radius: 6px 6px 0 0;
-	color: #666;
-	padding: 10px 15px;
-}
-
-#auth-modal .modal-header h1 {
-	font-family: 'Source Sans Pro', Helvetica, sans-serif;
-	font-size: 26px;
-}
-
-#auth-modal .modal-header strong {
-	color: #333;
-}
-
-#auth-modal .modal-footer .error {
-	color: #dd0000;
-	float: left;
-	font-weight: 600;
-	margin: 8px 0 0 4px;
-}
-
-#auth-modal .modal-footer {
-	position: relative;
-}
-
-#auth-modal .loading {
-	display: none;
-	margin-top: 4px;
-	position: absolute;
-}
-
-#auth-modal[data-loading="1"] .loading {
-	display: block;
+/*-------------------------[ E-mail Modal ]------------------------*/
+#email-modal .modal-dialog {
+	width: 480px;
 }
 
 
