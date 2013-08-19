@@ -466,7 +466,7 @@ var summa = (function () {
 	var _renderInlineView = function _renderInlineView(view) {
 		$('#view').html($('[data-view="' + view + '"]').clone());
 	};
-	
+
 	/**
 	 * Add a route handler
 	 *
