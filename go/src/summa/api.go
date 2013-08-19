@@ -153,7 +153,10 @@ func generateApiResponse(httpReq *http.Request, apiResp *apiResponse) apiError {
 		apiResp.Token = token
 		apiResp.Data = make(map[string]interface{})
 		apiResp.Data["user"] = apiReq.User
-		apiResp.Data["needEmail"] = apiReq.User.Email == ""
+
+		if apiReq.User.Email == "" {
+			apiResp.Data["needEmail"] = true
+		}
 
 		return nil
 	} else {
@@ -176,7 +179,10 @@ func generateApiResponse(httpReq *http.Request, apiResp *apiResponse) apiError {
 		}
 
 		apiResp.Data = make(map[string]interface{})
-		apiResp.Data["needEmail"] = apiReq.User.Email == ""
+
+		if apiReq.User.Email == "" {
+			apiResp.Data["needEmail"] = true
+		}
 
 		apiErr := handler(db, apiReq, apiResp.Data)
 		return apiErr
