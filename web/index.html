@@ -91,6 +91,28 @@
 			</div><!-- /.modal-dialog -->
 		</div><!-- /.modal -->
 
+		<div id="inline-views">
+			<div data-view="loader" class="container">
+				<div class="loading loading-large"></div>
+			</div>
+			<div data-view="400" class="container error-view">
+				<h1>Bad Request</h1>
+				Your request could not be processed
+			</div>
+			<div data-view="403" class="container error-view">
+				<h1>Forbidden</h1>
+				You do not have permission to access the requested resource
+			</div>
+			<div data-view="404" class="container error-view">
+				<h1>Not Found</h1>
+				The requested resource could not be found
+			</div>
+			<div data-view="500" class="container error-view">
+				<h1>Internal Server Error</h1>
+				The server encountered an unexpected condition and could not fulfill your request
+			</div>
+		</div>
+
 		<script src="/js/vendor/jquery.js"></script>
 		<script src="/js/vendor/bootstrap.js"></script>
 		<script src="/js/vendor/chosen.js"></script>
