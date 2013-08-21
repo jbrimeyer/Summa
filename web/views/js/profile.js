@@ -5,5 +5,36 @@
 	};
 	summa.inherit(summa.View, ProfileView);
 
+	/**
+	 * Render the view
+	 */
+	ProfileView.prototype.render = function render(args) {
+		var that = this;
+		var apiData = {username: summa.getUser().username};
+
+		if (typeof args !== 'undefined' && args.user) {
+			apiData.username = args.user;
+		}
+
+		// TODO: Fetch profile information and snippets in parallel
+
+		$.when(
+			summa.postToApi('/api/profile', {data: apiData}),
+			summa.postToApi('/api/snippets', {data: apiData})
+		)
+		.done(function profileLoadDone(user, snip) {
+			that._super.render.call(
+				that,
+				{
+					user: user[0].data.user,
+					snippets: snip[0].data.snippets
+				}
+			);
+		})
+		.fail(function routeLoadFail(jqXhr) {
+			summa.renderInlineView(jqXhr.status);
+		});
+	};
+
 	summa.registerView(new ProfileView());
 })();

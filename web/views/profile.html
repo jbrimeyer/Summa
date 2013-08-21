@@ -1,3 +1,10 @@
 	<div data-view="profile" class="container">
 		<h1>Profile</h1>
+		<?= user.displayName ?>
+
+		<ul>
+			<? for (var i = 0; i < snippets.length; i++) { ?>
+			<li><?= snippets[i].description ?></li>
+			<? } ?>
+		</ul>
 	</div>
