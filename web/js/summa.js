@@ -164,7 +164,6 @@ var summa = (function () {
 	 * Show a modal
 	 *
 	 * @param {string} modal The selector of the modal to show
-	 * @param {string} focus The selector of the item to receive focus
 	 * @private
 	 */
 	var _showModal = function _showModal(modal) {
@@ -201,7 +200,7 @@ var summa = (function () {
 		apiData.data.displayName = _user.displayName;
 
 		_postToApi('/api/profile/update', apiData)
-			.done(function authDone(json) {
+			.done(function authDone() {
 				_user.hasEmail = true;
 				_saveUserInfo();
 				_modalLoading(false, '#email-modal');
@@ -451,7 +450,7 @@ var summa = (function () {
 					e.preventDefault();
 				}
 			})
-			.on('shown.bs.modal', function authModalShown(e) {
+			.on('shown.bs.modal', function authModalShown() {
 				$('#auth-username').focus();
 			});
 
@@ -462,7 +461,7 @@ var summa = (function () {
 					e.preventDefault();
 				}
 			})
-			.on('shown.bs.modal', function emailModalShown(e) {
+			.on('shown.bs.modal', function emailModalShown() {
 				$('#email-address').focus();
 			});
 	};
@@ -486,7 +485,7 @@ var summa = (function () {
 	/**
 	 * Render one of the inline page views
 	 *
- 	 * @param view
+	 * @param view
 	 * @private
 	 */
 	var _renderInlineView = function _renderInlineView(view) {
@@ -512,7 +511,7 @@ var summa = (function () {
 				handler: handler,
 				parts: parts,
 				regex: new RegExp(path)
-			})
+			});
 		}
 		else {
 			_routesLookup[path] = handler;
@@ -535,7 +534,7 @@ var summa = (function () {
 					var args = {};
 
 					for (var j = 1; j < matches.length; j++) {
-						args[_routes[i].parts[j-1]] = matches[j]
+						args[_routes[i].parts[j-1]] = matches[j];
 					}
 
 					return {
@@ -557,7 +556,7 @@ var summa = (function () {
 		_updateAuthStatus();
 
 		if (!_isSignedIn()) {
-			_showModal('#auth-modal', '');
+			_showModal('#auth-modal');
 		}
 		else if (!_hasEmail()) {
 			_showModal('#email-modal');
@@ -636,20 +635,6 @@ var summa = (function () {
 		var hours = minutes / 60;
 		var days = hours / 24;
 		var years = days / 365;
-		var s = {
-			seconds: "less than a minute",
-			minute: "about a minute",
-			minutes: "%d minutes",
-			hour: "about an hour",
-			hours: "about %d hours",
-			day: "a day",
-			days: "%d days",
-			month: "about a month",
-			months: "%d months",
-			year: "about a year",
-			years: "%d years"
-		};
-
 
 		switch (true) {
 			case seconds < 45:
