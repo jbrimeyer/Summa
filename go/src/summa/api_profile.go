@@ -7,7 +7,13 @@ import (
 )
 
 func apiProfile(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
-	u, err := userFetch(db, req.Username)
+	username, _ := req.Data["username"].(string)
+
+	if username == "" {
+		username = req.Username
+	}
+
+	u, err := userFetch(db, username)
 	if err != nil {
 		return &internalServerError{"Could not fetch user", err}
 	}
