@@ -23,7 +23,7 @@ Instead of a list of all class selectors,
 you can use the generic selector below, but it's slower:
 [class*="icon-"] {
 */
-.icon-user, .icon-signin, .icon-signout, .icon-github, .icon-inbox, .icon-inbox-empty, .icon-delete, .icon-edit, .icon-file, .icon-comment {
+.icon-user, .icon-signin, .icon-signout, .icon-github, .icon-inbox, .icon-inbox-empty, .icon-delete, .icon-edit, .icon-file, .icon-comment, .icon-file-code, .icon-chat {
 	font-family: 'icomoon';
 	speak: none;
 	font-style: normal;
@@ -62,4 +62,10 @@ you can use the generic selector below, but it's slower:
 }
 .icon-comment:before {
 	content: "\e006";
+}
+.icon-file-code:before {
+	content: "\e003";
+}
+.icon-chat:before {
+	content: "\e004";
 }
