@@ -26,8 +26,20 @@ var summa = (function () {
 	 */
 	var View = function View() {
 		this.$html = null;
-		this.initHtml = null;
-		this.render = null;
+		this.name = null;
+	};
+
+	/**
+	 * Initialize the view's HTML
+	 */
+	View.prototype.initHtml = function initHtml() {
+	};
+
+	/**
+	 * Render the view
+	 */
+	View.prototype.render = function render() {
+		$('#view').html(this.$html.clone());
 	};
 
 	/**
@@ -45,12 +57,26 @@ var summa = (function () {
 	/**
 	 * Register a view
 	 *
-	 * @param {string} name
 	 * @param {View} view
 	 * @private
 	 */
-	var _registerView = function _registerView(name, view) {
-		_views[name] = view;
+	var _registerView = function _registerView(view) {
+		_views[view.name] = view;
+	};
+
+	/**
+	 * Simple JavaScript inheritance
+	 *
+	 * @param {Object} parent
+	 * @param {Object} child
+	 * @private
+	 */
+	var _inherit = function _inherit(parent, child) {
+		function Surrogate() {}
+		Surrogate.prototype = parent.prototype;
+		child.prototype = new Surrogate();
+		child.prototype._super = Surrogate.prototype;
+		child.prototype.constructor = child;
 	};
 
 	/**
@@ -58,7 +84,7 @@ var summa = (function () {
 	 *
 	 * @param {string} url
 	 * @param {Object} data
-	 * @returns {jqXHR}
+	 * @returns {Object} A jquery XHR object
 	 * @private
 	 */
 	var _postToApi = function _postToApi(url, data) {
@@ -893,6 +919,7 @@ var summa = (function () {
 	_exports.renderInlineView = _renderInlineView;
 	_exports.pageLoading = _pageLoading;
 	_exports.ago = _ago;
+	_exports.inherit = _inherit;
 
 	return _exports;
 })();

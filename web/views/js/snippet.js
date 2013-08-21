@@ -1,8 +1,15 @@
 (function () {
-	var view = new summa.View();
-	view.render = function render(args) {
+	var SnippetView = function SnippetView() {
+		this._super.constructor.call(this);
+		this.name = 'snippet';
+	};
+	summa.inherit(summa.View, SnippetView);
+
+	SnippetView.prototype.render = function render(args) {
 		var that = this;
 		var apiData = {id: args.id};
+
+		that._super.render.call(this, args);
 
 		summa.postToApi('/api/snippet', {data: apiData})
 			.fail(function snippetFetchFail(jqXhr) {
@@ -19,5 +26,5 @@
 			});
 	};
 
-	summa.registerView('snippet', view);
+	summa.registerView(new SnippetView());
 })();

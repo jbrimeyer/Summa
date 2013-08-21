@@ -157,17 +157,16 @@
 			});
 	};
 
-	/**
-	 * The View object
-	 *
-	 * @type {summa.View}
-	 */
-	var _view = new summa.View();
+	var SnippetCreateView = function SnippetCreateView() {
+		this._super.constructor.call(this);
+		this.name = 'snippet-create';
+	};
+	summa.inherit(summa.View, SnippetCreateView);
 
 	/**
 	 * Initialize the view's HTML
 	 */
-	_view.initHtml = function initHtml() {
+	SnippetCreateView.prototype.initHtml = function initHtml() {
 		var $select = this.$html.find('.snippet-language');
 		for (var lang in summa.languages) {
 			$select.append(
@@ -180,8 +179,8 @@
 	/**
 	 * Render the view
 	 */
-	_view.render = function render() {
-		$('#view').html(this.$html.clone());
+	SnippetCreateView.prototype.render = function render() {
+		this._super.render.call(this);
 
 		$snippetFiles = $('#snippet-files');
 		$('#btn-add-file').click(_addFile);
@@ -192,5 +191,5 @@
 		$snippetFiles.on('change', '.snippet-language', _updateEditorMode);
 	};
 
-	summa.registerView('index', _view);
+	summa.registerView(new SnippetCreateView());
 })();

@@ -1,9 +1,9 @@
 (function () {
-	var view = new summa.View();
-	view.render = function render(args) {
-		$('#view').html(this.$html.clone());
-		console.log('Render snippet EDIT', args);
+	var SnippetEditView = function SnippetEditView() {
+		this._super.constructor.call(this);
+		this.name = 'snippet-edit';
 	};
+	summa.inherit(summa.View, SnippetEditView);
 
-	summa.registerView('snippet-edit', view);
+	summa.registerView(new SnippetEditView());
 })();

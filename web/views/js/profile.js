@@ -1,10 +1,9 @@
 (function () {
-	var render = function render() {
-		$('#view').html(this.$html.clone());
+	var ProfileView = function ProfileView() {
+		this._super.constructor.call(this);
+		this.name = 'profile';
 	};
+	summa.inherit(summa.View, ProfileView);
 
-	var view = new summa.View();
-	view.render = render;
-
-	summa.registerView('profile', view);
+	summa.registerView(new ProfileView());
 })();
