@@ -14,7 +14,11 @@
 				<div class="snippet">
 					<div class="snippet-details">
 						<input type="text" class="form-control input-xsm snippet-name" placeholder="Name this file...">
-						<select class="snippet-language chosen"></select>
+						<select class="snippet-language chosen">
+							<? for (var lang in languages) { ?>
+							<option value="<?= lang ?>"<? if (lang === summa.consts.DEFAULT_LANGUAGE) { ?>selected<? } ?>><?= lang ?></option>
+							<? } ?>
+						</select>
 						<a href="/" class="snippet-remove icon-delete"></a>
 					</div>
 					<div class="snippet-editor"></div>

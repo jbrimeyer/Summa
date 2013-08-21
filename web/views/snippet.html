@@ -5,21 +5,75 @@
 				<div id="snip-view-meta" class="col-md-6">
 					<div>
 						<i class="icon-user"></i>
-						<a id="snip-view-username" href="#"></a>
+						<a id="snip-view-username" href="#/profile/<?= snippet.username ?>"><?= snippet.username ?></a>
 						/
-						<a id="snip-view-repo" href="#"></a>
+						<a id="snip-view-repo" href="#/snippet/<?= snippet.id ?>"><?= snippet.files[0].filename ?></a>
 					</div>
-					<div id="snip-view-created" class="text-muted"></div>
+					<div id="snip-view-created" class="text-muted"><?= summa.ago(snippet.created) ?></div>
 				</div>
+				<? if (snippet.username === user.username) { ?>
 				<div id="snip-view-buttons" class="text-right col-md-6">
-					<button class="btn btn-sm btn-info"><i class="icon-edit"></i> Edit</button>
-					<button class="btn btn-sm btn-danger"><i class="icon-delete"></i> Delete</button>
+					<button id="btn-snip-edit" class="btn btn-sm btn-info"><i class="icon-edit"></i> Edit</button>
+					<button id="btn-snip-delete" class="btn btn-sm btn-danger"><i class="icon-delete"></i> Delete</button>
 				</div>
+				<? } ?>
 			</div>
 		</div>
 	</div>
 
 	<div class="container">
-		<div id="snip-view-description"></div>
+		<div id="snip-view-description"><?= snippet.description ?></div>
+
+		<? for (var i = 0; i < snippet.files.length; i++) { ?>
+		<? var file = snippet.files[i]; ?>
+		<div class="snippet-container bordered-box">
+			<div class="snippet">
+				<div class="snippet-details">
+					<div class="snip-view-filename"><i class="icon-file-code"></i> <?= file.filename ?></div>
+					<div class="snip-view-language text-muted"><?= file.language ?></div>
+				</div>
+				<div class="snippet-editor"></div>
+			</div>
+		</div>
+		<? } ?>
+
+		<div id="snip-view-comments">
+		<? if (Array.isArray(snippet.comments)) { ?>
+		<? for (var j = 0; j < snippet.comments.length; j++) { ?>
+		<? var comment = snippet.comments[j]; ?>
+			<div class="comment-box">
+				<div class="bordered-box">
+					<div class="comment-container">
+						<div class="comment-head">
+							<i class="icon-comment"></i>
+							<span><a href="#/profile/<?= comment.username ?>" class="comment-user"><?= comment.displayName ?></a> commented</span>
+							<div class="comment-ago text-muted"><?= summa.ago(comment.created) ?></div>
+						</div>
+						<div class="comment-body">
+							<?= comment.message ?>
+						</div>
+					</div>
+				</div>
+			</div>
+		<? } ?>
+		<? } ?>
+		</div>
+
+
+		<div class="comment-box">
+			<i class="icon-chat"></i>
+			<div class="bordered-box">
+				<div id="comment-textarea">
+					<div id="comment-is-markdown">Parsed as Markdown</div>
+					<textarea placeholder="Leave a comment..."></textarea>
+				</div>
+			</div>
+		</div>
+
+		<div class="clearfix">
+			<div class="buttons-right">
+				<button type="button" id="btn-add-comment" class="btn btn-success">Add Comment</button>
+			</div>
+		</div>
 	</div>
 </div>

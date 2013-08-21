@@ -25,21 +25,54 @@ var summa = (function () {
 	 * @constructor
 	 */
 	var View = function View() {
-		this.$html = null;
+		this.html = null;
+		this.template = null;
 		this.name = null;
 	};
 
 	/**
-	 * Initialize the view's HTML
+	 * Parse a micro-template
+	 *
+	 * @param str
+	 * @returns {Function}
 	 */
-	View.prototype.initHtml = function initHtml() {
+	View.parse = function parse(str) {
+		var js = ['var p = [];', 'with (data) {'];
+		var lines = str.split(/\r\n|\r|\n/);
+		var code;
+
+		// TODO: Escape ' characters
+
+		for (var i = 0; i < lines.length; i++) {
+			code = "p.push('" +
+				lines[i]
+					.replace(/<\?(=)?\s*(.*?)\s*\?>/g, function (full, eq, part) {
+						if (eq) {
+							return "', " + part + ", '";
+						}
+						else {
+							return "');\n" + part + "\np.push('";
+						}
+					}) +
+				"\\n');";
+
+			js.push(code);
+		}
+
+		js.push('}', "return p.join('');");
+
+		code = js
+			.join('\n')
+			.replace("p.push('');\n", '');
+
+		return new Function('data', code);
 	};
 
 	/**
 	 * Render the view
 	 */
-	View.prototype.render = function render() {
-		$('#view').html(this.$html.clone());
+	View.prototype.render = function render(data) {
+		$('#view').html(this.template(data));
 	};
 
 	/**
@@ -48,10 +81,8 @@ var summa = (function () {
 	 * @param {string} [html]
 	 */
 	View.prototype.setHtml = function setHtml(html) {
-		this.$html = $(html);
-		if (typeof this.initHtml === 'function') {
-			this.initHtml();
-		}
+		this.html = html;
+		this.template = View.parse(html);
 	};
 
 	/**
@@ -230,6 +261,16 @@ var summa = (function () {
 	 */
 	var _hasEmail = function _hasEmail() {
 		return _user.hasEmail;
+	};
+
+	/**
+	 * Get the current user
+	 *
+	 * @returns {Object}
+	 * @private
+	 */
+	var _getUser = function _getUser() {
+		return _user;
 	};
 
 	/**
@@ -622,6 +663,42 @@ var summa = (function () {
 	};
 
 	/**
+	 * Create a new ACE editor
+	 *
+	 * @param {Object} el The DOM element in which to inject the editor
+	 * @param {Object} [options] Options for the editor
+	 * @param {string} [options.mode] The editor syntax mode
+	 * @param {boolean} [options.readonly=false] Make editor reaonly
+	 * @param {string} [options.value=""] The value to insert into the editor
+	 * @return {Object} The editor object
+	 * @private
+	 */
+	var _newEditor = function _newEditor(el, options) {
+		options = $.extend({
+				mode: _languages[_consts.DEFAULT_LANGUAGE].mode,
+				readonly: false,
+				value: ''
+			},
+			options
+		);
+
+		var editor = ace.edit(el);
+		editor.setShowPrintMargin(false);
+		editor.setShowFoldWidgets(false);
+		editor.setTheme('ace/theme/chrome');
+		editor.setReadOnly(options.readonly);
+
+		var session = editor.getSession();
+		session.setTabSize(3);
+		session.setUseSoftTabs(false);
+		session.setUseWorker(false);
+		session.setMode('ace/mode/' + options.mode);
+		session.setValue(options.value);
+
+		return editor;
+	};
+
+	/**
 	 * Generate a friendly "x time ago" string
 	 *
 	 * @param ms
@@ -905,6 +982,8 @@ var summa = (function () {
 	_exports.pageLoading = _pageLoading;
 	_exports.ago = _ago;
 	_exports.inherit = _inherit;
+	_exports.newEditor = _newEditor;
+	_exports.getUser = _getUser;
 
 	return _exports;
 })();

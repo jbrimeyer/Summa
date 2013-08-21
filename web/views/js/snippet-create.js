@@ -30,16 +30,7 @@
 			.appendTo($snippetFiles)
 			.removeAttr('id');
 
-		var editor = ace.edit($file.find('.snippet-editor').get(0));
-		editor.setShowPrintMargin(false);
-		editor.setShowFoldWidgets(false);
-		editor.setTheme('ace/theme/chrome');
-
-		var session = editor.getSession();
-		session.setTabSize(3);
-		session.setUseSoftTabs(false);
-		session.setUseWorker(false);
-		session.setMode('ace/mode/text');
+		summa.newEditor($file.find('.snippet-editor').get(0));
 
 		$file.find('.chosen').chosen();
 
@@ -157,6 +148,11 @@
 			});
 	};
 
+	/**
+	 * Our view object
+	 *
+	 * @constructor
+	 */
 	var SnippetCreateView = function SnippetCreateView() {
 		this._super.constructor.call(this);
 		this.name = 'snippet-create';
@@ -164,23 +160,10 @@
 	summa.inherit(summa.View, SnippetCreateView);
 
 	/**
-	 * Initialize the view's HTML
-	 */
-	SnippetCreateView.prototype.initHtml = function initHtml() {
-		var $select = this.$html.find('.snippet-language');
-		for (var lang in summa.languages) {
-			$select.append(
-				'<option value="' + lang + '">' + lang + '</option>'
-			);
-		}
-		$select.children('[value="' + summa.consts.DEFAULT_LANGUAGE + '"]').attr('selected', 'selected');
-	};
-
-	/**
 	 * Render the view
 	 */
 	SnippetCreateView.prototype.render = function render() {
-		this._super.render.call(this);
+		this._super.render.call(this, {languages: summa.languages});
 
 		$snippetFiles = $('#snippet-files');
 		$('#btn-add-file').click(_addFile);

@@ -371,6 +371,99 @@ div[data-view="loader"] {
 	font-size: 15px;
 }
 
+.snip-view-filename {
+	color: #333;
+	font-weight: 600;
+	left: 10px;
+	position: absolute;
+	top: 6px;
+}
+
+.snip-view-filename i {
+	position: relative;
+	top: 1px;
+}
+
+.snip-view-language {
+	font-weight: 600;
+	position: absolute;
+	right: 10px;
+	top: 6px;
+}
+
+.comment-box {
+	margin: 20px 0;
+	padding-left: 10%;
+	position: relative;
+}
+
+.comment-box .icon-chat {
+	color: #AAA;
+	font-size: 36px;
+	left: calc(10% - 50px);
+	position: absolute;
+}
+
+.comment-box .bordered-box {
+	margin: 0;
+}
+
+#comment-is-markdown {
+	color: #bbb;
+	font-size: 12px;
+	position: absolute;
+	top: 15px;
+	right: 20px;
+}
+
+#comment-textarea {
+	padding: 10px;
+}
+
+#comment-textarea textarea {
+	background: #fafafa;
+	border: 1px solid #DDD;
+	border-radius: 3px;
+	max-width: 100%;
+	min-height: 100px;
+	padding: 4px 130px 4px 6px;
+	width: 100%;
+}
+
+.comment-head {
+	height: 33px;
+	color: #555;
+	font-size: 13px;
+	min-height: 2.4em;
+	padding: 6px;
+	border-bottom: 1px solid #ccc;
+	background-color: #f5f5f5;
+	position: relative;
+}
+
+.comment-head a {
+	color: #555;
+}
+
+.comment-head > * {
+	vertical-align: middle;
+}
+
+.comment-user {
+	font-weight: 600;
+}
+
+.comment-ago {
+	position: absolute;
+	right: 10px;
+	top: 6px;
+}
+
+.comment-body {
+	background-color: #fbfbfb;
+	padding: 10px;
+}
+
 
 /*-------------------[ Create/Edit Snippet Form ]------------------*/
 #snippet-template {
@@ -388,9 +481,13 @@ div[data-view="loader"] {
 	background-color: #fafafa;
 	border-bottom: 1px solid #d8d8d8;
 	color: #555;
-	font-size: 12px;
+	min-height: 2.4em;
 	padding: 6px;
 	position: relative;
+}
+
+.snippet-details input {
+	font-size: 12px;
 }
 
 #snippet-files[data-files="1"] .snippet-remove {
@@ -422,7 +519,7 @@ div[data-view="loader"] {
 }
 
 .snippet-editor {
-	font-family: 'Consolas' !important;
+	font-family: 'Consolas', monospace !important;
 	font-size: 13px !important;
 	height: 350px;
 	line-height: inherit !important;
