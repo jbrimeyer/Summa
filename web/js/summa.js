@@ -665,7 +665,7 @@ var summa = (function () {
 	};
 
 	// Define all of our known routes
-	_addRoute('/', 'index');
+	_addRoute('/', 'snippet-create');
 	_addRoute('/signout', _signOut);
 	_addRoute('/profile', 'profile');
 	_addRoute('/search', 'search');
