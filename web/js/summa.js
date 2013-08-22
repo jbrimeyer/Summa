@@ -13,6 +13,7 @@ var summa = (function () {
 		INLINE_VIEW_500: '500',
 		INLINE_VIEW_LOADER: 'loader'
 	};
+	var _reAuth = false;
 	var _exports = {};
 	var _routes = [];
 	var _routesLookup = {};
@@ -118,7 +119,7 @@ var summa = (function () {
 	 * @returns {Object} A jquery XHR object
 	 * @private
 	 */
-	var _postToApi = function _postToApi(url, data) {
+	var _postToApi = function _postToApi(url, data, options) {
 		if (typeof data === 'undefined') {
 			data = {};
 		}
@@ -128,13 +129,13 @@ var summa = (function () {
 			data.token = _user.token;
 		}
 
-		return $.ajax({
+		return $.ajax($.extend(options, {
 			type: 'POST',
 			url: url,
 			data: JSON.stringify(data),
 			contentType: 'application/json; charset=utf-8',
 			dataType: 'json'
-		});
+		}));
 	};
 
 	/**
@@ -367,7 +368,7 @@ var summa = (function () {
 			return;
 		}
 
-		_postToApi('/api/auth/signin', apiData)
+		_postToApi('/api/auth/signin', apiData, {global: false})
 			.done(function authDone(json) {
 				_user.username = json.data.user.username;
 				_user.displayName = json.data.user.displayName;
@@ -382,12 +383,13 @@ var summa = (function () {
 				if (json.data.needEmail) {
 					_showModal('#email-modal');
 				}
-				else {
+				else if (!_reAuth) {
 					_hashChange();
 				}
+
+				_reAuth = false;
 			})
 			.fail(function authFail(xhr) {
-				// TODO: Handle all types of errors
 				if (xhr.status === 401) {
 					_setModalError('Authentication failed!', '#auth-modal');
 				}
@@ -478,6 +480,15 @@ var summa = (function () {
 		$(window).on('hashchange', _hashChange);
 		$('[data-toggle="tooltip"]').tooltip();
 
+		$(document).ajaxError(function globalAjaxError(e, jqXhr) {
+			if (jqXhr.status === 401) {
+				_reAuth = true;
+				_deleteUserInfo();
+				_updateAuthStatus();
+				_showModal('#auth-modal');
+			}
+		});
+
 		$('.modal-body').find('input').keydown(function modalKeyDown(e) {
 			if (e.keyCode === 13) {
 				$(this).parents('.modal-dialog').find('.btn-primary').click();
@@ -490,9 +501,14 @@ var summa = (function () {
 				if (!_isSignedIn()) {
 					e.preventDefault();
 				}
+				else {
+					$('#auth-username').val('');
+					$('#auth-password').val('');
+				}
 			})
 			.on('shown.bs.modal', function authModalShown() {
-				$('#auth-username').focus();
+				$('#auth-username').val('').focus();
+				$('#auth-password').val('');
 			});
 
 		$('#email-button').click(_saveEmail);
@@ -503,7 +519,7 @@ var summa = (function () {
 				}
 			})
 			.on('shown.bs.modal', function emailModalShown() {
-				$('#email-address').focus();
+				$('#email-address').val('').focus();
 			});
 	};
 
@@ -530,7 +546,7 @@ var summa = (function () {
 	 * @private
 	 */
 	var _renderInlineView = function _renderInlineView(view) {
-		$('#view').html($('[data-view="' + view + '"]').clone());
+		$('#view').html($('#inline-views [data-view="' + view + '"]').clone());
 	};
 
 	/**
