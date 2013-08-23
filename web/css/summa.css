@@ -70,17 +70,6 @@ h1, h2, h3, h4, h5, h6 {
 	margin: 8px 0 0 4px;
 }
 
-.modal-footer .loading {
-	display: none;
-	margin-top: 4px;
-	position: absolute;
-}
-
-.modal[data-loading="1"] .loading {
-	display: block;
-}
-
-
 /*----------------[ Chosen Overrides/Enhancements ]----------------*/
 .chosen-container-single .chosen-single {
 	font-size: 14px;
@@ -171,11 +160,19 @@ h1, h2, h3, h4, h5, h6 {
 	border-top-color: #3b973b;
 }
 
+.btn-primary .loading {
+	border-color: #90bee4;
+}
+
+.btn-primary .loading:before {
+	border-top-color: #2d5c83;
+}
+
 .btn-info .loading {
 	border-color: #a1ddef;
 }
 
-.btn-success .loading:before {
+.btn-info .loading:before {
 	border-top-color: #358da6;
 }
 
