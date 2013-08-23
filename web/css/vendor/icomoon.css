@@ -23,7 +23,7 @@ Instead of a list of all class selectors,
 you can use the generic selector below, but it's slower:
 [class*="icon-"] {
 */
-.icon-user, .icon-signin, .icon-signout, .icon-github, .icon-inbox, .icon-inbox-empty, .icon-delete, .icon-edit, .icon-file, .icon-comment, .icon-file-code, .icon-chat {
+.icon-inbox, .icon-signout, .icon-signin, .icon-github, .icon-file, .icon-files, .icon-file-code, .icon-delete, .icon-user, .icon-edit, .icon-comment, .icon-chat {
 	font-family: 'icomoon';
 	speak: none;
 	font-style: normal;
@@ -33,39 +33,39 @@ you can use the generic selector below, but it's slower:
 	line-height: 1;
 	-webkit-font-smoothing: antialiased;
 }
-.icon-user:before {
+.icon-inbox:before {
 	content: "\e000";
 }
-.icon-signin:before {
+.icon-signout:before {
 	content: "\e001";
 }
-.icon-signout:before {
+.icon-signin:before {
 	content: "\e002";
 }
 .icon-github:before {
-	content: "\e005";
-}
-.icon-inbox:before {
-	content: "\e009";
-}
-.icon-inbox-empty:before {
-	content: "\e00a";
-}
-.icon-delete:before {
-	content: "\e00f";
-}
-.icon-edit:before {
-	content: "\e011";
-}
-.icon-file:before {
-	content: "\e007";
-}
-.icon-comment:before {
-	content: "\e006";
-}
-.icon-file-code:before {
 	content: "\e003";
 }
-.icon-chat:before {
+.icon-file:before {
 	content: "\e004";
+}
+.icon-files:before {
+	content: "\e005";
+}
+.icon-file-code:before {
+	content: "\e006";
+}
+.icon-delete:before {
+	content: "\e007";
+}
+.icon-user:before {
+	content: "\e008";
+}
+.icon-edit:before {
+	content: "\e009";
+}
+.icon-comment:before {
+	content: "\e00a";
+}
+.icon-chat:before {
+	content: "\e00b";
 }
