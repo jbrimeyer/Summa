@@ -125,7 +125,7 @@
 	 */
 	SnippetView.prototype.render = function render(args) {
 		var that = this;
-		var apiData = {id: args.id};
+		var apiData = {id: args.id, markRead: true};
 
 		summa.postToApi('/api/snippet', {data: apiData})
 			.fail(function snippetFetchFail(jqXhr) {
