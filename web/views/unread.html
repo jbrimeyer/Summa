@@ -1,3 +1,24 @@
 <div data-view="unread" class="container">
-	<h1>Unread</h1>
+	<? if (!Array.isArray(snippets)) { ?>
+	<div class="alert alert-info text-center">
+		You have no unread snippets!
+	</div>
+	<? } else { ?>
+	<h3>Unread Snippets</h3>
+	<? for (var i = 0; i < snippets.length; i++) { ?>
+	<? var snippet = snippets[i]; ?>
+	<div class="snip-brief">
+		<i class="icon-file-code"></i>
+		<div class="snip-brief-desc">
+			<a href="#/profile/<?= snippet.username ?>"class="snip-brief-user"><?= summa.clean(snippet.displayName) ?></a> /
+			<a href="#/snippet/<?= snippet.id ?>"><?= summa.clean(snippet.description) ?></a>
+		</div>
+		<div class="snip-brief-meta">
+			<span><i class="icon-files"></i> Files: <?= snippet.numFiles ?></span>
+			<span><i class="icon-comment"></i> Comments: <?= snippet.numComments ?></span>
+			<span>Created <?= summa.ago(snippet.created) ?><? if (snippet.updated > 0) { ?>, updated <?= summa.ago(snippet.updated) ?><? } ?></span>
+		</div>
+	</div>
+	<? } ?>
+	<? } ?>
 </div>
