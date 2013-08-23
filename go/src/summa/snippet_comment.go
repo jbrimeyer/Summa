@@ -10,7 +10,8 @@ type snippetComment struct {
 	SnippetID   string `json:"-"`
 	Username    string `json:"username"`
 	DisplayName string `json:"displayName"`
-	Message     string `json:"message"`
+	Markdown    string `json:"markdown"`
+	HTML        string `json:"html"`
 	Created     int64  `json:"created"`
 	Updated     int64  `json:"updated"`
 }
@@ -54,7 +55,7 @@ func snippetCommentFetch(db *sql.DB, id string) (*snippetComment, error) {
 	var comment snippetComment
 
 	row := db.QueryRow(
-		"SELECT comment_id,snippet_id,username,display_name,message,created,updated "+
+		"SELECT comment_id,snippet_id,username,display_name,markdown,html,created,updated "+
 			"FROM snippet_comment JOIN user USING (username) WHERE comment_id=?",
 		id,
 	)
@@ -64,7 +65,8 @@ func snippetCommentFetch(db *sql.DB, id string) (*snippetComment, error) {
 		&comment.SnippetID,
 		&comment.Username,
 		&comment.DisplayName,
-		&comment.Message,
+		&comment.Markdown,
+		&comment.HTML,
 		&comment.Created,
 		&comment.Updated,
 	)
@@ -89,12 +91,14 @@ func snippetCommentCreate(db *sql.DB, comment *snippetComment) error {
 	}
 
 	comment.Created = UnixMilliseconds()
+	comment.HTML = markdownParse(comment.Markdown)
 
 	result, err := db.Exec(
-		"INSERT INTO snippet_comment VALUES (NULL,?,?,?,?,0)",
+		"INSERT INTO snippet_comment VALUES (NULL,?,?,?,?,?,0)",
 		comment.SnippetID,
 		comment.Username,
-		comment.Message,
+		comment.Markdown,
+		comment.HTML,
 		comment.Created,
 	)
 	if err != nil {
@@ -125,8 +129,9 @@ func snippetCommentUpdate(db *sql.DB, comment *snippetComment) error {
 	comment.Updated = UnixMilliseconds()
 
 	_, err = db.Exec(
-		"UPDATE snippet_comment SET message=?,updated=? WHERE comment_id=?",
-		comment.Message,
+		"UPDATE snippet_comment SET markdown=?,html=?,updated=? WHERE comment_id=?",
+		comment.Markdown,
+		markdownParse(comment.Markdown),
 		comment.Updated,
 		comment.ID,
 	)

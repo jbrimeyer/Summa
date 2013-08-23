@@ -2,7 +2,8 @@ CREATE TABLE "snippet_comment" (
 	"comment_id" INTEGER PRIMARY KEY AUTOINCREMENT,
 	"snippet_id" TEXT,
 	"username" TEXT,
-	"message" TEXT,
+	"markdown" TEXT,
+	"html" TEXT,
 	"created" INTEGER,
 	"updated" INTEGER
 );

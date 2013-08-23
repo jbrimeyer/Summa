@@ -294,7 +294,7 @@ func snippetFetchComments(db *sql.DB, id string) (snippetComments, error) {
 	var comments snippetComments
 
 	rows, err := db.Query(
-		"SELECT comment_id,username,display_name,message,created,updated FROM "+
+		"SELECT comment_id,username,display_name,markdown,html,created,updated FROM "+
 			"snippet_comment JOIN user USING (username) WHERE snippet_id=? ORDER BY created",
 		id,
 	)
@@ -310,7 +310,8 @@ func snippetFetchComments(db *sql.DB, id string) (snippetComments, error) {
 			&comment.ID,
 			&comment.Username,
 			&comment.DisplayName,
-			&comment.Message,
+			&comment.Markdown,
+			&comment.HTML,
 			&comment.Created,
 			&comment.Updated,
 		)

@@ -23,8 +23,8 @@ func apiCommentCreate(db *sql.DB, req apiRequest, resp apiResponseData) apiError
 		return &badRequestError{"No such snippet"}
 	}
 
-	comment.Message, _ = req.Data["message"].(string)
-	if strings.TrimSpace(comment.Message) == "" {
+	comment.Markdown, _ = req.Data["message"].(string)
+	if strings.TrimSpace(comment.Markdown) == "" {
 		return &conflictError{apiResponseData{"field": "message"}}
 	}
 
@@ -68,7 +68,7 @@ func apiCommentUpdate(db *sql.DB, req apiRequest, resp apiResponseData) apiError
 		return &internalServerError{"Could not fetch comment", err}
 	}
 
-	comment.Message = message
+	comment.Markdown = message
 
 	err = snippetCommentUpdate(db, comment)
 	if err != nil {
