@@ -13,12 +13,14 @@ func snippetsFetch(db *sql.DB, start, limit float64, orderBy, username string) (
 
 	whereClause := ""
 	if username != "" {
-		whereClause = "WHERE username=?"
+		whereClause = "WHERE snippet.username=?"
 	}
-
 	query := fmt.Sprintf(
-		"SELECT snippet_id,username,display_name,description,created,updated "+
-			"FROM snippet JOIN user USING (username) %s ORDER BY %s LIMIT %d OFFSET %d",
+		"SELECT snippet.snippet_id,snippet.username,display_name,description,snippet.created,snippet.updated,"+
+			"COUNT(snippet_file.snippet_id) files,COUNT(snippet_comment.snippet_id) comments "+
+			"FROM snippet JOIN user USING (username) JOIN snippet_file USING (snippet_id) "+
+			"LEFT JOIN snippet_comment USING (snippet_id) %s GROUP BY snippet.snippet_id "+
+			"ORDER BY %s LIMIT %d OFFSET %d",
 		whereClause,
 		orderBy,
 		int(limit),
@@ -53,6 +55,8 @@ func snippetsFetch(db *sql.DB, start, limit float64, orderBy, username string) (
 			&snip.Description,
 			&snip.Created,
 			&snip.Updated,
+			&snip.NumFiles,
+			&snip.NumComments,
 		)
 
 		snips = append(snips, snip)
@@ -70,9 +74,11 @@ func snippetsUnread(db *sql.DB, username string) (*snippets, error) {
 	var snips snippets
 
 	rows, err := db.Query(
-		"SELECT snippet_id,username,display_name,description,created,updated "+
-			"FROM snippet JOIN user USING (username) WHERE snippet_id NOT IN "+
-			"(SELECT snippet_id FROM snippet_view WHERE username=?)",
+		"SELECT snippet.snippet_id,snippet.username,display_name,description,snippet.created,snippet.updated,"+
+			"COUNT(snippet_file.snippet_id) files,COUNT(snippet_comment.snippet_id) comments "+
+			"FROM snippet JOIN user USING (username) JOIN snippet_file USING (snippet_id) "+
+			"LEFT JOIN snippet_comment USING (snippet_id) WHERE snippet.snippet_id NOT IN "+
+			"(SELECT snippet_id FROM snippet_view sv WHERE sv.username=?)",
 		username,
 	)
 	if err != nil {
@@ -90,6 +96,8 @@ func snippetsUnread(db *sql.DB, username string) (*snippets, error) {
 			&snip.Description,
 			&snip.Created,
 			&snip.Updated,
+			&snip.NumFiles,
+			&snip.NumComments,
 		)
 
 		snips = append(snips, snip)

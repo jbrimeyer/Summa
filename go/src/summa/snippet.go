@@ -24,7 +24,9 @@ type snippet struct {
 	Created     int64           `json:"created"`
 	Updated     int64           `json:"updated"`
 	Files       snippetFiles    `json:"files,omitempty"`
+	NumFiles    int64           `json:"numFiles"`
 	Comments    snippetComments `json:"comments,omitempty"`
+	NumComments int64           `json:"numComments"`
 	Revisions   []string        `json:"revisions,omitempty"`
 }
 
