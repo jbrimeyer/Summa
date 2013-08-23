@@ -74,11 +74,12 @@ func snippetsUnread(db *sql.DB, username string) (*snippets, error) {
 	var snips snippets
 
 	rows, err := db.Query(
-		"SELECT snippet.snippet_id,snippet.username,display_name,description,snippet.created,snippet.updated,"+
-			"COUNT(snippet_file.snippet_id) files,COUNT(snippet_comment.snippet_id) comments "+
-			"FROM snippet JOIN user USING (username) JOIN snippet_file USING (snippet_id) "+
-			"LEFT JOIN snippet_comment USING (snippet_id) WHERE snippet.snippet_id NOT IN "+
-			"(SELECT snippet_id FROM snippet_view sv WHERE sv.username=?)",
+		"SELECT s.snippet_id,s.username,u.display_name,s.description,s.created,s.updated,"+
+			"COUNT(sf.snippet_id) files,COUNT(sc.snippet_id) comments FROM snippet s JOIN "+
+			"user u ON u.username=s.username JOIN snippet_file sf ON s.snippet_id=sf.snippet_id "+
+			"LEFT JOIN snippet_comment sc ON s.snippet_id=sc.snippet_id LEFT JOIN snippet_view sv "+
+			"ON s.snippet_id=sv.snippet_id AND sv.username=? WHERE sv.snippet_id IS NULL "+
+			"GROUP BY s.snippet_id",
 		username,
 	)
 	if err != nil {
