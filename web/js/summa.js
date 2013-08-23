@@ -19,6 +19,11 @@ var summa = (function () {
 	var _routesLookup = {};
 	var _views = {};
 	var _user;
+	var _htmlCharMap = {
+		'<': '&lt;',
+		'>': '&gt;',
+		'&': '&amp;'
+	}
 
 	/**
 	 * View object
@@ -84,6 +89,18 @@ var summa = (function () {
 	View.prototype.setHtml = function setHtml(html) {
 		this.html = html;
 		this.template = View.parse(html);
+	};
+
+	/**
+	 * Really simple HTML cleaning
+	 *
+	 * @param {string} text The text to clean
+	 * @returns {string} The cleaned text
+	 */
+	var _clean = function _clean(text) {
+		return text.replace(/(<|>|&)/g, function (whole, part) {
+			return _htmlCharMap[part];
+		});
 	};
 
 	/**
@@ -774,7 +791,7 @@ var summa = (function () {
 	_addRoute('/profile/{user}', 'profile');
 	_addRoute('/profile', 'profile');
 	_addRoute('/search', 'search');
-	_addRoute('/snippet/{id}/edit', 'snippet-edit');
+	_addRoute('/snippet/{id}/edit', 'snippet-create');
 	_addRoute('/snippet/{id}', 'snippet');
 	_addRoute('/unread', 'unread');
 
@@ -1001,6 +1018,7 @@ var summa = (function () {
 	_exports.inherit = _inherit;
 	_exports.newEditor = _newEditor;
 	_exports.getUser = _getUser;
+	_exports.clean = _clean;
 
 	return _exports;
 })();

@@ -83,7 +83,7 @@
 	 * @private
 	 */
 	var _gatherSnippet = function _gatherSnippet() {
-		var snippet = {};
+		var snippet = {id: $('#snippet-id').val()};
 		var $description = $('#snippet-description');
 
 		snippet.description = $description.val().trim();
@@ -139,13 +139,47 @@
 			return;
 		}
 
+		var $btn = $(this).attr('disabled', 'disabled');
+
 		summa.postToApi('/api/snippet/create', {data: snippet})
-			.fail(function () {
-				console.log('FAIL', arguments);
-			})
 			.done(function (json) {
+				$btn.removeAttr('disabled');
 				summa.setHash('/snippet/' + json.data.id);
 			});
+	};
+
+	/**
+	 * Handler triggered when the user clicks on the "Update Snippet" button
+	 *
+	 * @private
+	 */
+	var _updateSnippet = function _updateSnippet() {
+		var snippet = _gatherSnippet();
+		if (snippet === false) {
+			return;
+		}
+
+		var $btn = $(this).attr('disabled', 'disabled');
+
+		summa.postToApi('/api/snippet/update', {data: snippet})
+			.done(function () {
+				$btn.removeAttr('disabled');
+				summa.setHash('/snippet/' + snippet.id);
+			});
+	};
+
+	/**
+	 * Initialize the user interface
+	 *
+	 * @private
+	 */
+	var _initUi = function _initUi() {
+		$snippetFiles = $('#snippet-files');
+		$('#btn-add-file').click(_addFile);
+		$('#btn-create-snippet').click(_createSnippet);
+		$('#btn-update-snippet').click(_updateSnippet);
+		$snippetFiles.on('click', '.snippet-remove', _removeFile);
+		$snippetFiles.on('change', '.snippet-language', _updateEditorMode);
 	};
 
 	/**
@@ -162,16 +196,50 @@
 	/**
 	 * Render the view
 	 */
-	SnippetCreateView.prototype.render = function render() {
-		this._super.render.call(this, {languages: summa.languages});
+	SnippetCreateView.prototype.render = function render(args) {
+		var that = this;
 
-		$snippetFiles = $('#snippet-files');
-		$('#btn-add-file').click(_addFile);
-		$('#btn-create-snippet').click(_createSnippet);
-		_addFile({scrollTo: false});
+		if (typeof args.id !== 'undefined') {
+			var apiData = {id: args.id};
 
-		$snippetFiles.on('click', '.snippet-remove', _removeFile);
-		$snippetFiles.on('change', '.snippet-language', _updateEditorMode);
+			summa.postToApi('/api/snippet', {data: apiData})
+				.fail(function snippetFetchFail(jqXhr) {
+					summa.renderInlineView(jqXhr.status);
+				})
+				.done(function snippetFetchDone(json) {
+					that.snippet = json.data.snippet;
+					that._super.render.call(
+						that,
+						{
+							user: summa.getUser(),
+							snippet: that.snippet,
+							languages: summa.languages
+						}
+					);
+
+					var $editors = $('.snippet-editor');
+					for (var i = 0; i < that.snippet.files.length; i++) {
+						var file = that.snippet.files[i];
+						var editor = summa.newEditor(
+							$editors.get(i),
+							{
+								mode: summa.languages[file.language].mode,
+								value: file.contents
+							}
+						);
+					}
+
+					$('#snippet-files').find('.chosen').chosen();
+
+					_initUi();
+					_updateFileCount();
+				});
+		}
+		else {
+			this._super.render.call(this, {languages: summa.languages});
+			_initUi();
+			_addFile({scrollTo: false});
+		}
 	};
 
 	summa.registerView(new SnippetCreateView());

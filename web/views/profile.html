@@ -1,10 +1,28 @@
 	<div data-view="profile" class="container">
-		<h1>Profile</h1>
-		<?= user.displayName ?>
-
-		<ul>
-			<? for (var i = 0; i < snippets.length; i++) { ?>
-			<li><?= snippets[i].description ?></li>
+		<? var isSelf = user.username === profile.username; ?>
+		<? if (!Array.isArray(snippets)) { ?>
+		<div class="alert alert-warning text-center">
+			<? if (isSelf) { ?>You have<? } else { ?><?= profile.displayName ?> has<? } ?> not yet created any snippets!
+		</div>
+		<? } else { ?>
+			<? if (isSelf) { ?>
+		<h3>Your Snippets</h3>
+			<? } else { ?>
+		<h3>Snippets By <?= profile.displayName ?></h3>
 			<? } ?>
-		</ul>
+			<? for (var i = 0; i < snippets.length; i++) { ?>
+			<? var snippet = snippets[i]; ?>
+		<div class="snip-brief">
+			<div class="snip-brief-desc">
+				<a href="#/profile/<?= snippet.username ?>"class="snip-brief-user"><?= summa.clean(snippet.displayName) ?></a> /
+				<a href="#/snippet/<?= snippet.id ?>"><?= summa.clean(snippet.description) ?></a>
+			</div>
+			<div class="snip-brief-meta text-muted">
+				<span><i class="icon-file-code"></i> Files: <?= snippet.numFiles ?></span>
+				<span><i class="icon-comment"></i> Comments: <?= snippet.numComments ?></span>
+				<span>Created <?= summa.ago(snippet.created) ?><? if (snippet.updated > 0) { ?>, updated <?= summa.ago(snippet.updated) ?><? } ?></span>
+			</div>
+		</div>
+			<? } ?>
+		<? } ?>
 	</div>

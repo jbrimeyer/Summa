@@ -1,14 +1,37 @@
 	<div data-view="index" class="container">
 		<div>
-			<div id="summa-summary" class="alert alert-warning text-center">
+			<? var editMode = typeof snippet !== 'undefined'; ?>
+			<? if (!editMode) { ?>
+			<div id="summa-summary" class="alert alert-info text-center">
 				<strong>Summa</strong> is a simple way to <strong>share snippets and pastes</strong> with others. All snippets are git repositories, so they are automatically <strong>versioned and cloneable</strong>.
 			</div>
+			<? } ?>
 
 			<div class="bordered-box">
-				<textarea id="snippet-description" placeholder="Snippet description..."></textarea>
+				<textarea id="snippet-description" placeholder="Snippet description..."><?= editMode ? summa.clean(snippet.description) : '' ?></textarea>
 			</div>
 
-			<div id="snippet-files"></div>
+			<div id="snippet-files">
+				<? if (editMode) { ?>
+					<? for (var i = 0; i < snippet.files.length; i++) { ?>
+					<? var file = snippet.files[i]; ?>
+					<div class="snippet-container bordered-box">
+						<div class="snippet">
+							<div class="snippet-details">
+								<input type="text" class="form-control input-xsm snippet-name" placeholder="Name this file..." value="<?= summa.clean(file.filename) ?>">
+								<select class="snippet-language chosen">
+									<? for (var lang in languages) { ?>
+									<option value="<?= lang ?>"<? if (lang === file.language) { ?>selected<? } ?>><?= lang ?></option>
+									<? } ?>
+								</select>
+								<a href="/" class="snippet-remove icon-delete"></a>
+							</div>
+							<div class="snippet-editor"></div>
+						</div>
+					</div>
+					<? } ?>
+				<? } ?>
+			</div>
 
 			<div id="snippet-template" class="snippet-container bordered-box">
 				<div class="snippet">
@@ -32,7 +55,13 @@
 			</div>
 
 			<div class="buttons-right">
-				<button type="button" id="btn-create-snippet" class="btn btn-success">Create Snippet</button>
+				<? if (editMode) { ?>
+				<input type="hidden" id="snippet-id" value="<?= snippet.id ?>">
+				<button type="button" id="btn-update-snippet" class="btn btn-info"><div class="loading"></div>Update Snippet</button>
+				<? } else { ?>
+				<input type="hidden" id="snippet-id" value="">
+				<button type="button" id="btn-create-snippet" class="btn btn-success"><div class="loading"></div>Create Snippet</button>
+				<? } ?>
 			</div>
 		</div>
 	</div>

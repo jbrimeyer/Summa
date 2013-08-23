@@ -10,13 +10,11 @@
 	 */
 	ProfileView.prototype.render = function render(args) {
 		var that = this;
-		var apiData = {username: summa.getUser().username};
+		var apiData = {username: summa.getUser().username, orderBy: 'created'};
 
 		if (typeof args !== 'undefined' && args.user) {
 			apiData.username = args.user;
 		}
-
-		// TODO: Fetch profile information and snippets in parallel
 
 		$.when(
 			summa.postToApi('/api/profile', {data: apiData}),
@@ -26,7 +24,8 @@
 			that._super.render.call(
 				that,
 				{
-					user: user[0].data.user,
+					user: summa.getUser(),
+					profile: user[0].data.user,
 					snippets: snip[0].data.snippets
 				}
 			);
