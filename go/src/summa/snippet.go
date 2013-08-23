@@ -1,6 +1,7 @@
 package summa
 
 import (
+	"bytes"
 	"database/sql"
 	_ "go-sqlite3"
 	"io/ioutil"
@@ -18,6 +19,7 @@ type snippetFiles []snippetFile
 
 type snippet struct {
 	ID          string          `json:"id"`
+	SearchID    int64           `json:"-"`
 	Username    string          `json:"username"`
 	DisplayName string          `json:"displayName"`
 	Description string          `json:"description"`
@@ -49,6 +51,7 @@ func snippetExists(db *sql.DB, id string) (bool, error) {
 // snippetCreate will create a new snippet and return it's id
 func snippetCreate(db *sql.DB, snip *snippet, u *User) (string, error) {
 	var err error
+	var b bytes.Buffer
 
 	tx, err := db.Begin()
 	if err != nil {
@@ -79,9 +82,10 @@ func snippetCreate(db *sql.DB, snip *snippet, u *User) (string, error) {
 		ms--
 	}
 
-	_, err = db.Exec(
-		"INSERT INTO snippet VALUES (?,?,?,?,0)",
+	_, err = tx.Exec(
+		"INSERT INTO snippet VALUES (?,?,?,?,?,0)",
 		id,
+		ms,
 		snip.Username,
 		snip.Description,
 		ms,
@@ -90,8 +94,10 @@ func snippetCreate(db *sql.DB, snip *snippet, u *User) (string, error) {
 		return "", err
 	}
 
+	b.WriteString(snip.Description + "\n")
+
 	for _, file := range snip.Files {
-		_, err = db.Exec(
+		_, err = tx.Exec(
 			"INSERT INTO snippet_file VALUES (?,?,?)",
 			id,
 			file.Filename,
@@ -100,6 +106,17 @@ func snippetCreate(db *sql.DB, snip *snippet, u *User) (string, error) {
 		if err != nil {
 			return "", err
 		}
+
+		b.WriteString(file.Contents + "\n")
+	}
+
+	_, err = tx.Exec(
+		"INSERT INTO snippet_search (docid, snippet) VALUES (?, ?)",
+		ms,
+		b.String(),
+	)
+	if err != nil {
+		return "", err
 	}
 
 	err = repoCreate(id, u, snip.Files)
@@ -109,6 +126,7 @@ func snippetCreate(db *sql.DB, snip *snippet, u *User) (string, error) {
 
 func snippetUpdate(db *sql.DB, oldSnip, newSnip *snippet, u *User) error {
 	var err error
+	var b bytes.Buffer
 
 	tx, err := db.Begin()
 	if err != nil {
@@ -126,7 +144,7 @@ func snippetUpdate(db *sql.DB, oldSnip, newSnip *snippet, u *User) error {
 	oldSnip.Updated = UnixMilliseconds()
 	oldSnip.Description = newSnip.Description
 
-	_, err = db.Exec(
+	_, err = tx.Exec(
 		"UPDATE snippet SET description=?,updated=? WHERE snippet_id=?",
 		oldSnip.Description,
 		oldSnip.Updated,
@@ -136,13 +154,15 @@ func snippetUpdate(db *sql.DB, oldSnip, newSnip *snippet, u *User) error {
 		return err
 	}
 
-	_, err = db.Exec("DELETE FROM snippet_file WHERE snippet_id=?", oldSnip.ID)
+	b.WriteString(newSnip.Description + "\n")
+
+	_, err = tx.Exec("DELETE FROM snippet_file WHERE snippet_id=?", oldSnip.ID)
 	if err != nil {
 		return err
 	}
 
 	for _, file := range newSnip.Files {
-		_, err = db.Exec(
+		_, err = tx.Exec(
 			"INSERT INTO snippet_file VALUES (?,?,?)",
 			oldSnip.ID,
 			file.Filename,
@@ -151,6 +171,17 @@ func snippetUpdate(db *sql.DB, oldSnip, newSnip *snippet, u *User) error {
 		if err != nil {
 			return err
 		}
+
+		b.WriteString(file.Contents + "\n")
+	}
+
+	_, err = tx.Exec(
+		"UPDATE snippet_search SET snippet=? WHERE docid=?",
+		b.String(),
+		oldSnip.SearchID,
+	)
+	if err != nil {
+		return err
 	}
 
 	err = repoUpdate(oldSnip.ID, u, oldSnip.Files, newSnip.Files)
@@ -214,6 +245,13 @@ func snippetDelete(db *sql.DB, id string) error {
 			return err
 		}
 	}
+
+	searchId, _ := FromBase36(Reverse(id))
+	_, err = tx.Exec(
+		"DELETE FROM snippet_search WHERE docid=?",
+		searchId,
+	)
+
 	tx.Commit()
 
 	repoDelete(id)
@@ -243,13 +281,14 @@ func snippetFetch(db *sql.DB, id string) (*snippet, error) {
 	var snip snippet
 
 	row := db.QueryRow(
-		"SELECT snippet_id,username,display_name,description,created,updated "+
+		"SELECT snippet_id,search_id,username,display_name,description,created,updated "+
 			"FROM snippet JOIN user USING (username) WHERE snippet_id=?",
 		id,
 	)
 
 	err := row.Scan(
 		&snip.ID,
+		&snip.SearchID,
 		&snip.Username,
 		&snip.DisplayName,
 		&snip.Description,

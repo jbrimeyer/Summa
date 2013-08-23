@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	SNIPPETS_LIMIT_MAX     = 100
-	SNIPPETS_LIMIT_DEFAULT = 20
+	SNIPPETS_LIMIT_MAX     = 200
+	SNIPPETS_LIMIT_DEFAULT = 100
 )
 
 var (
@@ -17,12 +17,12 @@ var (
 		"commentsDesc":    "num_comments DESC",
 		"filesAsc":        "num_files",
 		"filesDesc":       "num_files DESC",
-		"createdAsc":      "snippet.created",
-		"createdDesc":     "snippet.created DESC",
-		"updatedAsc":      "snippet.updated",
-		"updatedDesc":     "snippet.updated DESC",
-		"descriptionAsc":  "snippet.description",
-		"descriptionDesc": "snippet.description DESC",
+		"createdAsc":      "s.created",
+		"createdDesc":     "s.created DESC",
+		"updatedAsc":      "s.updated",
+		"updatedDesc":     "s.updated DESC",
+		"descriptionAsc":  "s.description",
+		"descriptionDesc": "s.description DESC",
 	}
 )
 
@@ -60,7 +60,21 @@ func apiSnippets(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
 }
 
 func apiSnippetsSearch(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
-	// TODO: apiSnippetsSearch()
+	term, _ := req.Data["term"].(string)
+	orderBy, _ := req.Data["orderBy"].(string)
+
+	orderBy, _ = snippetsOrderBy[strings.ToLower(orderBy)]
+	if orderBy == "" {
+		orderBy = snippetsOrderBy["updatedDesc"] + ", " + snippetsOrderBy["createdDesc"]
+	}
+
+	snips, err := snippetsSearch(db, orderBy, term)
+	if err != nil {
+		return &internalServerError{"Could not fetch snippets", err}
+	}
+
+	resp["snippets"] = snips
+
 	return nil
 }
 
