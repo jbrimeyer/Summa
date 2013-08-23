@@ -18,6 +18,10 @@ func apiProfile(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
 		return &internalServerError{"Could not fetch user", err}
 	}
 
+	if u == nil {
+		return &notFoundError{"User does not exist"}
+	}
+
 	resp["user"] = u
 
 	return nil
