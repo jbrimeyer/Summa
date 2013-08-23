@@ -76,7 +76,6 @@ func repoUpdate(id string, u *User, oldFiles, newFiles snippetFiles) error {
 			return err
 		}
 
-		infoLog.Printf("Removing %s", file.Filename)
 		err = index.Rm(file.Filename)
 		if err != nil {
 			return err
@@ -95,14 +94,11 @@ func repoUpdate(id string, u *User, oldFiles, newFiles snippetFiles) error {
 			return err
 		}
 
-		infoLog.Printf("Adding %s", file.Filename)
 		err = index.Add(file.Filename)
 		if err != nil {
 			return err
 		}
 	}
-
-	infoLog.Printf("Committing")
 
 	return repo.Commit(u.DisplayName, u.Email)
 }
