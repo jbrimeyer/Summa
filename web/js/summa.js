@@ -512,6 +512,12 @@ var summa = (function () {
 			}
 		});
 
+		$('#header-search').keydown(function searchKeyDown(e) {
+			if (e.keyCode === 13) {
+				_setHash('/search/' + encodeURIComponent($(this).val()));
+			}
+		});
+
 		$('#auth-button').click(_authenticate);
 		$('#auth-modal')
 			.on('hide.bs.modal', function authModalHide(e) {
@@ -578,7 +584,7 @@ var summa = (function () {
 			var parts = [];
 			path = path.replace(/\{(.*?)\}/g, function (full, part) {
 				parts.push(part);
-				return '([^/]+)';
+				return '([^/]*)';
 			});
 
 			_routes.push({
@@ -790,6 +796,7 @@ var summa = (function () {
 	_addRoute('/signout', _signOut);
 	_addRoute('/profile/{user}', 'profile');
 	_addRoute('/profile', 'profile');
+	_addRoute('/search/{term}', 'search');
 	_addRoute('/search', 'search');
 	_addRoute('/snippet/{id}/edit', 'snippet-create');
 	_addRoute('/snippet/{id}', 'snippet');
