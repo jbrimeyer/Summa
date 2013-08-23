@@ -2,6 +2,7 @@ package summa
 
 import (
 	"bytes"
+	"html"
 	"markdown"
 	"os"
 )
@@ -11,7 +12,7 @@ import (
 func markdownParse(input string) string {
 	var outputBuf bytes.Buffer
 
-	inputBuf := bytes.NewBufferString(input)
+	inputBuf := bytes.NewBufferString(html.EscapeString(input))
 	p := markdown.NewParser(nil)
 	p.Markdown(inputBuf, markdown.ToHTML(&outputBuf))
 
