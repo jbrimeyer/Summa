@@ -183,11 +183,11 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 
 // Close the connection.
 func (c *SQLiteConn) Close() error {
-	s := C.sqlite3_next_stmt(c.db, nil)
-	for s != nil {
-		C.sqlite3_finalize(s)
-		s = C.sqlite3_next_stmt(c.db, nil)
-	}
+	// s := C.sqlite3_next_stmt(c.db, nil)
+	// for s != nil {
+	// 	C.sqlite3_finalize(s)
+	// 	s = C.sqlite3_next_stmt(c.db, nil)
+	// }
 	rv := C.sqlite3_close(c.db)
 	if rv != C.SQLITE_OK {
 		return errors.New("error while closing sqlite database connection")
