@@ -13,9 +13,16 @@ const (
 
 var (
 	snippetsOrderBy = map[string]string{
-		"created":     "created",
-		"updated":     "updated",
-		"description": "description",
+		"commentsAsc":     "num_comments",
+		"commentsDesc":    "num_comments DESC",
+		"filesAsc":        "num_files",
+		"filesDesc":       "num_files DESC",
+		"createdAsc":      "snippet.created",
+		"createdDesc":     "snippet.created DESC",
+		"updatedAsc":      "snippet.updated",
+		"updatedDesc":     "snippet.updated DESC",
+		"descriptionAsc":  "snippet.description",
+		"descriptionDesc": "snippet.description DESC",
 	}
 )
 
@@ -37,9 +44,9 @@ func apiSnippets(db *sql.DB, req apiRequest, resp apiResponseData) apiError {
 		limit = SNIPPETS_LIMIT_MAX
 	}
 
-	orderBy, _ = req.Data[strings.ToLower(orderBy)].(string)
+	orderBy, _ = snippetsOrderBy[strings.ToLower(orderBy)]
 	if orderBy == "" {
-		orderBy = snippetsOrderBy["updated"]
+		orderBy = snippetsOrderBy["updatedDesc"] + ", " + snippetsOrderBy["createdDesc"]
 	}
 
 	snips, err := snippetsFetch(db, start, limit, orderBy, username)
