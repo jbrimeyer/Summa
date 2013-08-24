@@ -8,11 +8,16 @@ import (
 	"path"
 )
 
+const (
+	LANG_MARKDOWN = "Markdown"
+)
+
 type snippetFile struct {
 	SnippetID string `json:"-"`
 	Filename  string `json:"filename"`
 	Language  string `json:"language"`
 	Contents  string `json:"contents,omitempty"`
+	HTML      string `json:"html,omitempty"`
 }
 
 type snippetFiles []snippetFile
@@ -398,6 +403,10 @@ func snippetFetchFiles(db *sql.DB, id string) (snippetFiles, error) {
 		}
 
 		file.Contents = string(contents)
+
+		if file.Language == LANG_MARKDOWN {
+			file.HTML = markdownParse(file.Contents)
+		}
 
 		files = append(files, file)
 	}
