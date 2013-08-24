@@ -625,6 +625,11 @@ div[data-view="loader"] {
 	height: 350px;
 }
 
+.snippet-editor.markdown {
+	height: auto;
+	padding: 0 40px 0 20px;
+}
+
 
 /*----------------------[ Brief Snippet View ]---------------------*/
 .snip-brief {

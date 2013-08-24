@@ -32,7 +32,11 @@
 					<div class="snip-view-filename"><i class="icon-file-code"></i> <?= summa.clean(file.filename) ?></div>
 					<div class="snip-view-language text-muted"><?= summa.clean(file.language) ?></div>
 				</div>
+				<? if (typeof file.html !== 'undefined') { ?>
+				<div class="snippet-editor markdown"><?= file.html ?></div>
+				<? } else { ?>
 				<div class="snippet-editor"></div>
+				<? } ?>
 			</div>
 		</div>
 		<? } ?>

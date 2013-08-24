@@ -144,6 +144,9 @@
 				var $editors = $('.snippet-editor');
 				for (var i = 0; i < that.snippet.files.length; i++) {
 					var file = that.snippet.files[i];
+					if (typeof file.html !== 'undefined') {
+						continue;
+					}
 					var editor = summa.newEditor(
 						$editors.get(i),
 						{
