@@ -21,6 +21,7 @@ package markdown
 
 import (
 	"fmt"
+	"html"
 	"log"
 	"math/rand"
 	"strings"
@@ -189,7 +190,7 @@ func (w *htmlOut) elem(elt *element) *htmlOut {
 	case CODE:
 		w.s("<code>").str(elt.contents.str).s("</code>")
 	case HTML:
-		s = elt.contents.str
+		s = html.EscapeString(elt.contents.str)
 	case LINK:
 		o := w.obfuscate
 		if strings.Index(elt.contents.link.url, "mailto:") == 0 {
@@ -229,7 +230,7 @@ func (w *htmlOut) elem(elt *element) *htmlOut {
 	case HRULE:
 		w.sp().s("<hr />")
 	case HTMLBLOCK:
-		w.sp().s(elt.contents.str)
+		w.sp().s(html.EscapeString(elt.contents.str))
 	case VERBATIM:
 		w.sp().s("<pre><code>").str(elt.contents.str).s("</code></pre>")
 	case BULLETLIST:
