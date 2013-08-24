@@ -149,7 +149,8 @@
 						{
 							mode: summa.languages[file.language].mode,
 							readonly: true,
-							value: file.contents
+							value: file.contents,
+							autoSize: {min: 2, max: 200}
 						}
 					);
 				}

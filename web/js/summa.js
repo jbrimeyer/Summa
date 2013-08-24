@@ -734,7 +734,34 @@ var summa = (function () {
 		session.setMode('ace/mode/' + options.mode);
 		session.setValue(options.value);
 
+		if (typeof options.autoSize !== 'undefined') {
+			_resizeEditor(el, options.autoSize.min, options.autoSize.max);
+		}
+
 		return editor;
+	};
+
+	/**
+	 * Resize the ACE editor within a minimum and maximum size
+	 * based on the number of lines of content
+	 *
+	 * @param el
+	 * @param min
+	 * @param max
+	 * @private
+	 */
+	var _resizeEditor = function _resizeEditor(el, min, max) {
+		var editor = ace.edit(el);
+		var renderer = editor.renderer;
+		var lines = editor.getSession().getScreenLength();
+		var showLines = Math.min(Math.max(min, lines), max);
+		var newHeight = Math.min(
+			showLines * renderer.lineHeight + renderer.scrollBar.getWidth(),
+			$(window).height() - 80
+		);
+
+		$(el).height(newHeight);
+		editor.resize();
 	};
 
 	/**
@@ -1024,6 +1051,7 @@ var summa = (function () {
 	_exports.ago = _ago;
 	_exports.inherit = _inherit;
 	_exports.newEditor = _newEditor;
+	_exports.resizeEditor = _resizeEditor;
 	_exports.getUser = _getUser;
 	_exports.clean = _clean;
 
